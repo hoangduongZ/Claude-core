@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code trên máy Windows — sổ tay trực quan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F1F0EB; --card:#FAF9F5; --card2:#FFFFFF;
+  --ink:#171A19; --ink2:#5C605D; --ink3:#8A8D88;
+  --rule:#D6D3CA; --rule2:#B4B1A6;
+
+  /* tầng — thang xanh chàm, chỉ dùng cho "ai sở hữu" */
+  --l0:#2B3A55; --l1:#4A6E93; --l2:#7FA0C2;
+  /* ngữ nghĩa — chỉ dùng cho đúng/sai/nguy hiểm */
+  --pine:#1F6B57; --ochre:#8F6412; --brick:#A03325;
+
+  --serif:'Source Serif 4',Georgia,serif;
+  --grot:'Space Grotesk',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:17px;line-height:1.7;-webkit-font-smoothing:antialiased;padding:0 20px 120px}
+.wrap{max-width:1060px;margin:0 auto}
+p{max-width:66ch}
+b,strong{font-weight:600}
+code{font-family:var(--mono);font-size:.85em;background:rgba(43,58,85,.08);
+  border-radius:2px;padding:.1em .34em;color:var(--l0);white-space:nowrap}
+a{color:var(--l1);text-underline-offset:3px}
+a:hover{color:var(--brick)}
+:focus-visible{outline:2px solid var(--l1);outline-offset:3px}
+svg{display:block;width:100%;height:auto}
+button{font-family:inherit}
+
+/* ============ HERO ============ */
+.hero{padding:80px 0 0;display:grid;grid-template-columns:1fr 460px;gap:56px;align-items:center}
+.hero .path{font-family:var(--mono);font-weight:500;font-size:clamp(18px,3.2vw,32px);
+  letter-spacing:-.02em;line-height:1.3;word-break:break-all}
+.hero .path .d{color:var(--ink3)} .hero .path .h{color:var(--brick)}
+.hero .lede{margin-top:26px;font-size:clamp(19px,2.1vw,23px);line-height:1.55;
+  font-weight:600;letter-spacing:-.01em;max-width:30ch}
+.hero .sub{margin-top:18px;color:var(--ink2);font-size:16px}
+.hero .meta{margin-top:30px;padding-top:16px;border-top:1px solid var(--rule);
+  font-family:var(--grot);font-size:12.5px;color:var(--ink3);display:flex;gap:20px;flex-wrap:wrap}
+
+/* ============ LEGEND ============ */
+.legend{margin:56px 0 0;padding:24px 26px;background:var(--card);border:1px solid var(--rule)}
+.legend h2{font-family:var(--grot);font-size:15px;font-weight:700;margin-bottom:8px}
+.legend p{font-size:15.5px;color:var(--ink2)}
+.chips{display:flex;flex-wrap:wrap;gap:9px;margin:16px 0 0}
+.badge{font-family:var(--grot);font-size:11px;font-weight:500;padding:3px 8px;
+  border-left:3px solid var(--bc,var(--ink3));background:rgba(0,0,0,.035);color:var(--ink2);
+  display:inline-block;letter-spacing:.01em}
+.badge.d{--bc:var(--pine)} .badge.o{--bc:var(--ochre)} .badge.v{--bc:var(--brick)}
+.filter{margin-top:18px;font-family:var(--grot);font-size:13.5px;display:inline-flex;
+  align-items:center;gap:10px;cursor:pointer;background:none;border:1px solid var(--rule2);
+  padding:9px 14px;color:var(--ink)}
+.filter:hover{border-color:var(--ink)}
+.filter .bx{width:13px;height:13px;border:1.5px solid var(--ink);position:relative}
+body.only-doc .filter .bx::after{content:'';position:absolute;inset:2px;background:var(--pine)}
+body.only-doc [data-conf=o],body.only-doc [data-conf=v]{opacity:.18}
+[data-conf]{transition:opacity .18s}
+
+/* ============ TOC ============ */
+.toc{margin:52px 0 0;padding-top:20px;border-top:1px solid var(--rule);
+  display:grid;grid-template-columns:repeat(2,1fr);gap:0 34px}
+.toc a{font-family:var(--grot);font-size:14px;text-decoration:none;color:var(--ink2);
+  display:grid;grid-template-columns:28px 1fr;gap:8px;padding:7px 0;border-bottom:1px solid var(--rule)}
+.toc a:hover{color:var(--ink)}
+.toc a span{font-family:var(--mono);font-size:12px;color:var(--ink3)}
+
+/* ============ SECTION ============ */
+section{margin-top:100px;padding-top:24px;border-top:2px solid var(--ink);
+  display:grid;grid-template-columns:56px 1fr;gap:0 24px;scroll-margin-top:16px}
+section>*{grid-column:2}
+.snum{grid-column:1;grid-row:1/span 99;font-family:var(--mono);font-size:14px;font-weight:700;padding-top:5px}
+h2{font-family:var(--grot);font-weight:700;font-size:clamp(21px,2.6vw,27px);
+  letter-spacing:-.022em;line-height:1.24;max-width:26ch;margin-bottom:16px}
+h3{font-family:var(--grot);font-weight:700;font-size:16px;margin:40px 0 10px}
+h4{font-family:var(--grot);font-weight:500;font-size:14px;margin:24px 0 8px}
+section p+p{margin-top:14px}
+.lbl{font-family:var(--mono);font-size:10.5px;color:var(--ink3);margin-bottom:5px}
+
+.naive{margin:0 0 24px}
+.naive q{display:block;font-size:clamp(18px,2.1vw,21px);font-style:italic;line-height:1.5;
+  max-width:42ch;quotes:'“' '”'}
+.naive q::before{content:open-quote;color:var(--ink3)}
+.naive q::after{content:close-quote;color:var(--ink3)}
+.analogy{margin:24px 0;padding:2px 0 2px 18px;border-left:3px solid var(--ochre)}
+.analogy p{font-size:16.5px}
+.trap{margin:26px 0;padding:15px 19px;border-left:3px solid var(--brick);background:rgba(160,51,37,.045)}
+.trap p{font-size:16px} .trap .lbl{color:var(--brick)}
+.check{margin:28px 0 4px;padding:15px 19px;border:1px solid var(--rule2);background:var(--card)}
+.check .lbl{color:var(--pine)} .check p{font-size:16px}
+.check .ans{color:var(--ink2)}
+
+/* ============ FIGURE ============ */
+.fig{margin:30px 0;background:var(--card);border:1px solid var(--rule)}
+.fig .top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:11px 16px;border-bottom:1px solid var(--rule);font-family:var(--grot);font-size:12.5px;color:var(--ink2)}
+.fig .body{padding:22px 18px}
+.fig .cap{padding:0 18px 16px;font-size:14px;color:var(--ink2);max-width:74ch}
+.ctrl{display:flex;gap:7px;flex-wrap:wrap}
+.ctrl button{font-family:var(--grot);font-size:12px;padding:5px 11px;border:1px solid var(--rule2);
+  background:var(--card2);color:var(--ink);cursor:pointer}
+.ctrl button:hover{border-color:var(--ink)}
+.ctrl button[aria-pressed=true],.ctrl button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* code */
+.code{margin:20px 0;border:1px solid var(--rule);background:var(--card)}
+.code header{font-family:var(--mono);font-size:11.5px;color:var(--ink2);padding:9px 15px;
+  border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.code pre{font-family:var(--mono);font-size:12.6px;line-height:1.75;padding:15px;overflow-x:auto}
+.code .c{color:var(--ink3)} .code .k{color:var(--l0);font-weight:500}
+.code .g{color:var(--pine)} .code .r{color:var(--brick)} .code .y{color:var(--ochre)}
+
+/* table */
+.tbl{overflow-x:auto;margin:22px 0}
+table{width:100%;border-collapse:collapse;font-size:15px;min-width:520px}
+th{text-align:left;font-family:var(--grot);font-weight:500;font-size:12.5px;color:var(--ink2);
+  padding:9px 12px 9px 0;border-bottom:1.5px solid var(--ink);vertical-align:bottom}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+td.m{font-family:var(--mono);font-size:12.4px;color:var(--l0)}
+td.s{color:var(--ink2)} td.s b{color:var(--ink)}
+tr.no td{background:rgba(160,51,37,.05)}
+
+ul.plain{list-style:none;margin:14px 0;max-width:66ch}
+ul.plain li{padding:8px 0 8px 19px;border-bottom:1px solid var(--rule);position:relative;font-size:16px}
+ul.plain li::before{content:'';position:absolute;left:0;top:18px;width:9px;height:1.5px;background:var(--rule2)}
+ul.plain li:last-child{border-bottom:0}
+.note{font-size:15px;color:var(--ink2)}
+
+/* ============ WIDGET: TREE ============ */
+.tree-wrap{display:grid;grid-template-columns:1.25fr 1fr;gap:0;min-height:400px}
+.tree{padding:16px 14px;border-right:1px solid var(--rule);overflow-x:auto}
+.tnode{font-family:var(--mono);font-size:12.6px;line-height:1.9;white-space:nowrap;
+  cursor:pointer;border:0;background:none;color:var(--ink);display:block;text-align:left;width:100%;
+  padding:1px 6px;border-left:3px solid transparent}
+.tnode:hover{background:rgba(43,58,85,.06)}
+.tnode.sel{background:rgba(43,58,85,.1);border-left-color:var(--nc,var(--l1))}
+.tnode .tw{color:var(--ink3)}
+.tnode .nm{color:var(--nc,var(--ink))}
+.tnode .ar{color:var(--ink3);display:inline-block;width:10px}
+.tdetail{padding:20px 18px;background:var(--card2)}
+.tdetail h5{font-family:var(--mono);font-size:13.5px;font-weight:700;margin-bottom:3px;word-break:break-all}
+.tdetail .own{font-family:var(--grot);font-size:11.5px;color:var(--ink3);margin-bottom:12px}
+.tdetail p{font-size:15px;color:var(--ink2);margin-bottom:12px}
+.tdetail .kv{font-family:var(--grot);font-size:12.5px;display:flex;gap:8px;margin-top:8px}
+.tdetail .kv span:first-child{color:var(--ink3);min-width:60px}
+
+/* ============ WIDGET: PRECEDENCE ============ */
+.prec{border-top:1px solid var(--rule)}
+.prow{display:grid;grid-template-columns:30px 1fr 92px;gap:12px;align-items:center;
+  padding:12px 16px;border-bottom:1px solid var(--rule);background:var(--card2)}
+.prow .rk{font-family:var(--mono);font-size:12px;color:var(--ink3)}
+.prow .pp{font-family:var(--mono);font-size:12.4px;color:var(--l0);word-break:break-all}
+.prow .ow{font-family:var(--grot);font-size:12px;color:var(--ink3);display:block;margin-top:2px}
+.prow .tg{font-family:var(--grot);font-size:11.5px;background:none;border:1px solid var(--rule2);
+  padding:4px 8px;cursor:pointer;color:var(--ink2);white-space:nowrap}
+.prow.set{background:rgba(74,110,147,.09)}
+.prow.set .tg{background:var(--l1);color:#fff;border-color:var(--l1)}
+.prow.win{background:rgba(31,107,87,.14)}
+.prow.lose .pp{text-decoration:line-through;opacity:.45}
+.prow.lose .ow{opacity:.45}
+.pres{padding:16px;background:var(--ink);color:var(--paper);font-family:var(--grot);font-size:13.5px}
+.pres b{color:#fff}
+.pres .pv{font-family:var(--mono);font-size:12.5px;color:#9FD8C5}
+
+/* ============ WIDGET: QUADRANT ============ */
+.quad-info{padding:16px 18px;border-top:1px solid var(--rule);background:var(--card2);min-height:118px}
+.quad-info h5{font-family:var(--mono);font-size:14px;font-weight:700;margin-bottom:4px}
+.quad-info .t{font-family:var(--grot);font-size:12px;color:var(--ink3);margin-bottom:8px}
+.quad-info p{font-size:15px;color:var(--ink2)}
+.quad-info .f{font-family:var(--mono);font-size:11.5px;color:var(--l0);margin-top:8px;display:block}
+.qdot{cursor:pointer}
+.qdot circle{transition:r .15s}
+.qdot:hover circle,.qdot.on circle{r:13}
+
+/* ============ WIDGET: TIMELINE ============ */
+.tl-info{padding:16px 18px;border-top:1px solid var(--rule);background:var(--card2);min-height:120px}
+.tl-info h5{font-family:var(--mono);font-size:14px;font-weight:700;margin-bottom:4px}
+.tl-info p{font-size:15px;color:var(--ink2)}
+.tl-info .use{font-size:14px;color:var(--ink2);margin-top:8px}
+.tlm{cursor:pointer}
+.tlm:hover circle,.tlm.on circle{fill:var(--ink)}
+.tlm.on text{font-weight:700}
+
+/* ============ WIDGET: PERM SIM ============ */
+.psim{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.pcmds{padding:14px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:6px}
+.pcmds button{font-family:var(--mono);font-size:12.2px;text-align:left;padding:8px 10px;
+  border:1px solid var(--rule);background:var(--card2);cursor:pointer;color:var(--ink)}
+.pcmds button:hover{border-color:var(--ink)}
+.pcmds button.on{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+.pout{padding:20px 18px;background:var(--card2)}
+.verdict{font-family:var(--grot);font-size:20px;font-weight:700;margin-bottom:8px}
+.verdict.allow{color:var(--pine)} .verdict.deny{color:var(--brick)} .verdict.ask{color:var(--ochre)}
+.pout .rule{font-family:var(--mono);font-size:12.2px;color:var(--l0);margin-bottom:10px;word-break:break-all}
+.pout p{font-size:15px;color:var(--ink2)}
+
+/* ============ WIDGET: SORT QUIZ ============ */
+.quiz{padding:16px 18px}
+.qrow{display:grid;grid-template-columns:1fr 176px;gap:12px;align-items:center;
+  padding:8px 0;border-bottom:1px solid var(--rule)}
+.qrow .fn{font-family:var(--mono);font-size:12.4px;word-break:break-all}
+.seg{display:flex;border:1px solid var(--rule2)}
+.seg button{flex:1;font-family:var(--grot);font-size:11.5px;padding:6px 4px;border:0;
+  background:var(--card2);cursor:pointer;color:var(--ink2)}
+.seg button+button{border-left:1px solid var(--rule2)}
+.seg button.on{background:var(--l0);color:#fff}
+.qrow.ok .fn::after{content:' ✓';color:var(--pine);font-weight:700}
+.qrow.bad .fn::after{content:' ✗';color:var(--brick);font-weight:700}
+.qrow .why{grid-column:1/-1;font-size:13.5px;color:var(--brick);padding:2px 0 6px;display:none}
+.qrow.bad .why{display:block}
+.qfoot{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.qscore{font-family:var(--grot);font-size:13.5px;color:var(--ink2)}
+
+/* ============ WIDGET: CONTEXT METER ============ */
+.cm{padding:20px 18px}
+.cmbar{height:46px;border:1px solid var(--rule2);display:flex;overflow:hidden;background:var(--card2)}
+.cmseg{height:100%;transition:width .45s ease}
+.cm-base{background:var(--ochre)} .cm-hist{background:var(--l1)} .cm-free{background:transparent}
+.cmlab{display:flex;justify-content:space-between;font-family:var(--grot);font-size:12px;
+  color:var(--ink3);margin-top:8px}
+.cmlog{font-family:var(--mono);font-size:12px;color:var(--ink2);margin-top:14px;min-height:60px;
+  border-left:2px solid var(--rule);padding-left:12px}
+.cmlog div{padding:1px 0}
+.cmlog .hot{color:var(--brick)}
+
+/* ============ WIDGET: BRIDGE ============ */
+.bridge-out{padding:14px 18px;border-top:1px solid var(--rule);background:var(--card2);
+  font-family:var(--mono);font-size:12.4px;min-height:64px}
+.bridge-out .ok{color:var(--pine)} .bridge-out .er{color:var(--brick)}
+
+footer{max-width:1060px;margin:110px auto 0;padding-top:24px;border-top:2px solid var(--ink);
+  font-size:14.5px;color:var(--ink2)}
+footer p{max-width:78ch;margin-bottom:12px} footer b{color:var(--ink)}
+
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr;gap:32px}
+  .tree-wrap,.psim{grid-template-columns:1fr}
+  .tree{border-right:0;border-bottom:1px solid var(--rule)}
+  .pcmds{border-right:0;border-bottom:1px solid var(--rule)}
+}
+@media (max-width:760px){
+  body{font-size:16.5px;padding:0 15px 80px}
+  section{grid-template-columns:1fr;gap:0}
+  section>*{grid-column:1}
+  .snum{grid-row:auto;margin-bottom:8px;padding-top:0}
+  .toc{grid-template-columns:1fr}
+  .qrow{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav style="padding:20px 0 0;font-family:'Space Grotesk',system-ui,sans-serif;font-size:13px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;color:#8A8D88">
+  <a href="index.html" style="color:#5C605D;text-decoration:none;border-bottom:1px solid #D6D3CA;padding-bottom:2px">← Trang chủ</a>
+  <span>Bạn đang đọc bản <b style="color:#171A19">Windows</b></span>
+  <a href="macos-linux.html" style="color:#4A6E93">Chuyển sang bản macOS / Linux →</a>
+</nav>
+
+<!-- ================= HERO ================= -->
+<div class="hero">
+  <div>
+    <div class="path">C:\Users\<span class="d">&lt;bạn&gt;</span>\<span class="h">.claude</span>\</div>
+    <p class="lede">Claude không chạy ở đâu xa. Nó là một tiến trình trong terminal của bạn, và nội quy của nó nằm trong ba thư mục.</p>
+    <p class="sub">Không sandbox, không server chạy hộ. Nó có đúng quyền của tài khoản Windows của bạn. Hiểu ba tầng thư mục là hiểu 90% hành vi của nó.</p>
+    <div class="meta"><span>14 mục · 11 hình tương tác</span><span>Windows 10 / 11</span><span>14.09.2026</span></div>
+  </div>
+  <div>
+    <svg viewBox="0 0 440 340" role="img" aria-label="Ba tầng lồng nhau: máy, user, repo">
+      <rect x="6" y="6" width="428" height="328" fill="none" stroke="#2B3A55" stroke-width="2"/>
+      <text x="20" y="30" font-family="'Space Grotesk',sans-serif" font-size="12" fill="#2B3A55">TẦNG MÁY · IT kiểm soát</text>
+      <text x="20" y="48" font-family="'JetBrains Mono',monospace" font-size="10.5" fill="#5C605D">C:\ProgramData\ClaudeCode\</text>
+
+      <rect x="26" y="66" width="388" height="248" fill="rgba(74,110,147,.07)" stroke="#4A6E93" stroke-width="2"/>
+      <text x="40" y="90" font-family="'Space Grotesk',sans-serif" font-size="12" fill="#4A6E93">TẦNG USER · mọi repo của bạn</text>
+      <text x="40" y="108" font-family="'JetBrains Mono',monospace" font-size="10.5" fill="#5C605D">C:\Users\&lt;bạn&gt;\.claude\</text>
+
+      <rect x="46" y="126" width="348" height="168" fill="rgba(127,160,194,.16)" stroke="#7FA0C2" stroke-width="2"/>
+      <text x="60" y="150" font-family="'Space Grotesk',sans-serif" font-size="12" fill="#3C5A78">TẦNG PROJECT · đi vào git</text>
+      <text x="60" y="168" font-family="'JetBrains Mono',monospace" font-size="10.5" fill="#5C605D">D:\work\ec-site-tanaka\.claude\</text>
+
+      <rect x="66" y="188" width="308" height="88" fill="#FAF9F5" stroke="#171A19" stroke-width="1.5"/>
+      <text x="82" y="214" font-family="'JetBrains Mono',monospace" font-size="13" font-weight="700" fill="#171A19">claude.exe</text>
+      <text x="82" y="234" font-family="'Source Serif 4',serif" font-size="12" fill="#5C605D">chạy với quyền của bạn</text>
+      <text x="82" y="252" font-family="'Source Serif 4',serif" font-size="12" fill="#5C605D">đọc ngược ra cả ba tầng</text>
+      <path d="M340 232 L340 176" stroke="#A03325" stroke-width="1.5" marker-end="url(#ah)"/>
+      <path d="M356 232 L356 116" stroke="#A03325" stroke-width="1.5" marker-end="url(#ah)"/>
+      <path d="M372 232 L372 56" stroke="#A03325" stroke-width="1.5" marker-end="url(#ah)"/>
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+        <path d="M0 0 L10 5 L0 10 z" fill="#A03325"/></marker></defs>
+    </svg>
+  </div>
+</div>
+
+<!-- ================= LEGEND ================= -->
+<div class="legend">
+  <h2>Cách đọc</h2>
+  <p>Mỗi mục là một vòng Feynman: <em>câu hỏi ngây thơ</em> in nghiêng → <em>ẩn dụ</em> vạch vàng → <em>hình</em> để bạn nghịch → <em>bẫy</em> vạch đỏ → <em>tự kiểm tra</em> trong khung. Hình nào có nút thì bấm vào, đó là chỗ hiểu nhanh nhất.</p>
+  <div class="chips">
+    <span class="badge d">docs chính thức</span>
+    <span class="badge o">quan sát thực tế</span>
+    <span class="badge v">tôi không chắc — tự verify</span>
+  </div>
+  <button class="filter" id="filterBtn" aria-pressed="false"><span class="bx" aria-hidden="true"></span>Làm mờ phần chưa chắc chắn</button>
+</div>
+
+<!-- ================= TOC ================= -->
+<nav class="toc" aria-label="Mục lục">
+  <a href="#s1"><span>01</span>Vòng lặp: model nghĩ, máy bạn làm</a>
+  <a href="#s2"><span>02</span>Git Bash — cây cầu duy nhất</a>
+  <a href="#s3"><span>03</span>Ba tầng thư mục · cây tương tác</a>
+  <a href="#s4"><span>04</span>Tầng nào thắng · bộ giải</a>
+  <a href="#s5"><span>05</span>Đè lên nhau vs cộng dồn</a>
+  <a href="#s6"><span>06</span>Bốn cơ chế · bản đồ hai trục</a>
+  <a href="#s7"><span>07</span>Hooks · dòng thời gian phiên</a>
+  <a href="#s8"><span>08</span>Quyền · máy mô phỏng</a>
+  <a href="#s9"><span>09</span>MCP và cái bẫy cmd /c</a>
+  <a href="#s10"><span>10</span>Context đầy dần · chạy thử</a>
+  <a href="#s11"><span>11</span>Commit hay ignore · tự chấm</a>
+  <a href="#s12"><span>12</span>9 agent Digi Dinos · sơ đồ</a>
+  <a href="#s13"><span>13</span>Dump cấu trúc thật</a>
+  <a href="#s14"><span>14</span>Tham chiếu nhanh</a>
+</nav>
+
+<!-- ================= 01 ================= -->
+<section id="s1">
+  <div class="snum">01</div>
+  <h2>Vòng lặp: model nghĩ, máy bạn làm</h2>
+
+  <div class="naive"><div class="lbl">câu hỏi ngây thơ</div>
+    <q>Claude Code là app, service, hay cái gì đang chạy ngầm?</q></div>
+
+  <div class="analogy"><div class="lbl">ẩn dụ</div>
+    <p>Không phải app. Hãy nghĩ như <b>một đồng nghiệp bạn mời ngồi vào chính máy bạn</b>, dùng chính tài khoản Windows của bạn. Anh ta không có chìa khoá riêng — đi lại được đúng những chỗ bạn đi lại được. Cái duy nhất giới hạn anh ta là tờ nội quy dán trên bàn: <code>.claude\</code>.</p></div>
+
+  <div class="fig">
+    <div class="top"><span>Một lượt trả lời đi qua bốn chặng</span>
+      <div class="ctrl"><button id="loopBtn">Chạy vòng lặp</button></div></div>
+    <div class="body">
+      <svg viewBox="0 0 900 260" role="img" aria-label="Vòng lặp giữa terminal, API và disk">
+        <!-- nodes -->
+        <rect x="20" y="86" width="180" height="88" fill="#FFF" stroke="#171A19" stroke-width="1.5"/>
+        <text x="110" y="120" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="14" font-weight="700" fill="#171A19">Terminal của bạn</text>
+        <text x="110" y="141" text-anchor="middle" font-family="'Source Serif 4',serif" font-size="12" fill="#5C605D">claude.exe</text>
+        <text x="110" y="158" text-anchor="middle" font-family="'Source Serif 4',serif" font-size="12" fill="#5C605D">gom context</text>
+
+        <rect x="360" y="16" width="180" height="72" fill="#2B3A55" stroke="#2B3A55"/>
+        <text x="450" y="46" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="14" font-weight="700" fill="#FFF">API Anthropic</text>
+        <text x="450" y="66" text-anchor="middle" font-family="'Source Serif 4',serif" font-size="12" fill="#C6D2E2">chỉ quyết định, không chạm máy</text>
+
+        <rect x="700" y="86" width="180" height="88" fill="#FFF" stroke="#A03325" stroke-width="1.5"/>
+        <text x="790" y="120" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="14" font-weight="700" fill="#A03325">Ổ đĩa máy bạn</text>
+        <text x="790" y="141" text-anchor="middle" font-family="'Source Serif 4',serif" font-size="12" fill="#5C605D">D:\work\...</text>
+        <text x="790" y="158" text-anchor="middle" font-family="'Source Serif 4',serif" font-size="12" fill="#5C605D">sửa là sửa thật</text>
+
+        <!-- paths -->
+        <path id="p1" d="M200 110 C 260 60, 300 40, 360 46" fill="none" stroke="#4A6E93" stroke-width="2" marker-end="url(#a2)"/>
+        <path id="p2" d="M540 52 C 610 62, 640 82, 700 106" fill="none" stroke="#4A6E93" stroke-width="2" marker-end="url(#a2)"/>
+        <path id="p3" d="M700 152 C 620 200, 300 200, 200 152" fill="none" stroke="#1F6B57" stroke-width="2" marker-end="url(#a3)"/>
+        <defs>
+          <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#4A6E93"/></marker>
+          <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1F6B57"/></marker>
+        </defs>
+        <text x="268" y="52" font-family="'Space Grotesk',sans-serif" font-size="11.5" fill="#4A6E93">1 · prompt + CLAUDE.md + file đã đọc</text>
+        <text x="566" y="96" font-family="'Space Grotesk',sans-serif" font-size="11.5" fill="#4A6E93">2 · “gọi tool Edit vào file X”</text>
+        <text x="392" y="212" font-family="'Space Grotesk',sans-serif" font-size="11.5" fill="#1F6B57">4 · kết quả quay lại context · lặp tiếp</text>
+        <text x="700" y="200" font-family="'Space Grotesk',sans-serif" font-size="11.5" fill="#A03325">3 · thực thi</text>
+        <circle id="dot" r="6" fill="#A03325" opacity="0"/>
+      </svg>
+    </div>
+    <div class="cap">Chặng 3 là chỗ khác biệt lớn nhất so với chat trên web: tool chạy trên ổ đĩa của bạn, không phải trên server. Đóng terminal là tiến trình chết — không có daemon nào ở lại.</div>
+  </div>
+
+  <h4>Ba cách cài trên Windows</h4>
+  <div class="tbl"><table>
+    <tr><th>Cách</th><th>Lệnh</th><th>Đánh đổi</th></tr>
+    <tr data-conf="v"><td class="s"><b>Native installer</b><br><span style="color:var(--ink3);font-size:13px">khuyến nghị</span></td><td class="m">irm https://claude.ai/install.ps1 | iex</td><td class="s">Binary native, <b>không cần Node.js</b>. URL là chi tiết hay đổi — verify.</td></tr>
+    <tr data-conf="d"><td class="s"><b>npm</b></td><td class="m">npm i -g @anthropic-ai/claude-code</td><td class="s">Cần Node 18+ <span data-conf="v">(có thể đã lên 20+)</span>. Không chạy elevated.</td></tr>
+    <tr data-conf="d"><td class="s"><b>WSL2</b></td><td class="m">cài trong Ubuntu như Linux</td><td class="s">Có POSIX thật. Trả giá bằng ranh giới filesystem Windows ↔ WSL.</td></tr>
+  </table></div>
+
+  <div class="trap"><div class="lbl">bẫy</div>
+    <p>Đừng cài bằng terminal Administrator, đừng <code>sudo npm i -g</code> trên WSL. Bạn tạo ra một binary mà user thường không update được, rồi tuần sau <code>/doctor</code> báo lỗi permission không rõ nguyên nhân.</p></div>
+
+  <div class="check"><div class="lbl">tự kiểm tra</div>
+    <p>Tắt máy giữa lúc Claude đang sửa file thì sao? <span class="ans">— File vẫn nằm nguyên, đã sửa dở. Không transaction, không rollback tự động. Đó là lý do git và checkpoint (mục 10) quan trọng.</span></p></div>
+</section>
+
+<!-- ================= 02 ================= -->
+<section id="s2">
+  <div class="snum">02</div>
+  <h2>Git Bash — cây cầu duy nhất</h2>
+
+  <div class="naive"><div class="lbl">câu hỏi ngây thơ</div>
+    <q>Tại sao một công cụ chạy trên Windows lại bắt tôi cài Git for Windows?</q></div>
+
+  <div class="analogy"><div class="lbl">ẩn dụ</div>
+    <p>Claude được huấn luyện để <b>nói tiếng Bash</b>. Muốn chạy test, nó nghĩ ra câu có <code>|</code> và <code>tail</code>. Windows nghe không hiểu. Git for Windows mang theo một <b>người phiên dịch</b> tên Git Bash. Không có phiên dịch thì Claude vẫn nói, máy vẫn im.</p></div>
+
+  <div class="fig">
+    <div class="top"><span>Bấm để gỡ cầu và xem chuyện gì xảy ra</span>
+      <div class="ctrl">
+        <button id="bridgeOn" class="on">Đã cài Git Bash</button>
+        <button id="bridgeOff">Chưa cài</button>
+      </div></div>
+    <div class="body">
+      <svg viewBox="0 0 900 200" role="img" aria-label="Cầu nối Bash tới Windows">
+        <rect x="16" y="56" width="200" height="88" fill="#FFF" stroke="#171A19" stroke-width="1.5"/>
+        <text x="116" y="88" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="13.5" font-weight="700">Claude sinh ra lệnh</text>
+        <text x="116" y="112" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="#5C605D">php artisan test</text>
+        <text x="116" y="128" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="#5C605D">2&gt;&amp;1 | tail -20</text>
+
+        <g id="bridgeGrp">
+          <rect id="brRect" x="326" y="66" width="248" height="68" fill="rgba(31,107,87,.12)" stroke="#1F6B57" stroke-width="1.5"/>
+          <text id="brT1" x="450" y="94" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="13.5" font-weight="700" fill="#1F6B57">Git Bash</text>
+          <text id="brT2" x="450" y="116" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10.5" fill="#5C605D">C:\Program Files\Git\bin\bash.exe</text>
+        </g>
+
+        <rect x="684" y="56" width="200" height="88" fill="#FFF" stroke="#171A19" stroke-width="1.5"/>
+        <text x="784" y="88" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="13.5" font-weight="700">Windows thực thi</text>
+        <text x="784" y="112" text-anchor="middle" font-family="'Source Serif 4',serif" font-size="12" fill="#5C605D">process thật, output thật</text>
+
+        <path id="bl" d="M216 100 L326 100" stroke="#1F6B57" stroke-width="2.5" marker-end="url(#a4)"/>
+        <path id="br" d="M574 100 L684 100" stroke="#1F6B57" stroke-width="2.5" marker-end="url(#a4)"/>
+        <defs><marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1F6B57"/></marker></defs>
+        <text id="gapT" x="450" y="168" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="12" fill="#A03325" opacity="0">không có gì ở đây — lệnh rơi vào khoảng trống</text>
+      </svg>
+    </div>
+    <div class="bridge-out" id="bridgeOut"><span class="ok">$ php artisan test → Tests: 42 passed</span></div>
+    <div class="cap">Khi cầu gãy, Claude không báo lỗi rõ ràng — nó chỉ thấy lệnh thất bại rồi thử cách khác, rồi lại thử, và bạn đốt token cho một vấn đề môi trường.</div>
+  </div>
+
+  <div class="code"><header><span>PowerShell — set một lần</span></header>
+<pre><span class="c"># kiểm tra Git Bash</span>
+Test-Path <span class="g">"C:\Program Files\Git\bin\bash.exe"</span>
+
+<span class="c"># set vĩnh viễn (phải mở terminal MỚI)</span>
+setx CLAUDE_CODE_GIT_BASH_PATH <span class="g">"C:\Program Files\Git\bin\bash.exe"</span></pre></div>
+
+  <p>Git Bash không chỉ ảnh hưởng tool <code>Bash</code>. Nó lan sang ba chỗ ở các mục sau: <b>hooks</b> (mục 7, mọi ví dụ trong docs đều viết bằng bash với <code>jq</code>), <b>slash command có nhúng lệnh</b> (mục 6), và <b>MCP server chạy bằng npx</b> (mục 9).</p>
+
+  <div class="trap"><div class="lbl">bẫy</div>
+    <p>Bạn viết trong <code>CLAUDE.md</code> rằng test chạy bằng <code>php artisan test</code> — máy bạn ngon. Đồng nghiệp cài Git ở <code>D:\Tools\Git</code> và không set biến môi trường thì mọi lệnh Bash đều fail. <b>Điều kiện môi trường thuộc về checklist onboarding, không thuộc về CLAUDE.md.</b></p></div>
+
+  <div class="check"><div class="lbl">tự kiểm tra</div>
+    <p>Chuyển hẳn sang WSL2 thì mục này còn đúng không? <span class="ans">— Không. Trong WSL đã có bash thật. Đổi lại repo phải nằm trong filesystem WSL (<code>~/work/…</code>), để ở <code>/mnt/c/…</code> thì I/O chậm thấy rõ.</span></p></div>
+</section>
+
+<!-- ================= 03 ================= -->
+<section id="s3">
+  <div class="snum">03</div>
+  <h2>Ba tầng thư mục, không phải hai</h2>
+
+  <div class="naive"><div class="lbl">câu hỏi ngây thơ</div>
+    <q>Có <code>.claude</code> ở home, lại có một cái nữa trong repo. Sao phải hai chỗ?</q></div>
+
+  <div class="analogy"><div class="lbl">ẩn dụ</div>
+    <p>Giống nội quy công ty. Có <b>quy định tập đoàn</b> (IT dán, bạn không gỡ được), có <b>thói quen cá nhân</b> áp cho mọi dự án, và có <b>quy ước riêng của từng dự án</b>. Ba tầng, ba người chủ, và khi mâu thuẫn thì có thứ tự rõ ràng.</p></div>
+
+  <div class="fig">
+    <div class="top"><span>Bấm vào bất kỳ dòng nào để xem nó là gì</span>
+      <div class="ctrl"><button id="treeAll">Mở hết</button><button id="treeNone">Thu gọn</button></div></div>
+    <div class="tree-wrap">
+      <div class="tree" id="tree"></div>
+      <div class="tdetail" id="tdetail"></div>
+    </div>
+    <div class="cap">Màu vạch trái = ai sở hữu tầng đó. Xanh đậm là máy (IT), xanh vừa là bạn, xanh nhạt là repo/team.</div>
+  </div>
+
+  <div class="trap"><div class="lbl">bẫy</div>
+    <p><code>.claude.json</code> ở home (dấu chấm, không có thư mục) và <code>.claude\settings.json</code> là <b>hai thứ khác nhau</b>. File đầu là state ứng dụng và phình rất nhanh; file sau mới là config bạn nên sửa tay. Sửa nhầm file đầu là cách nhanh nhất để mất session history.</p></div>
+
+  <div class="check"><div class="lbl">tự kiểm tra</div>
+    <p>Muốn <b>cả team</b> bị chặn <code>php artisan migrate:fresh</code>. Viết vào đâu? <span class="ans">— <code>&lt;repo&gt;\.claude\settings.json</code>, mục <code>permissions.deny</code>, rồi commit. Viết vào <code>settings.local.json</code> chỉ mình bạn bị chặn; viết vào <code>~\.claude\settings.json</code> thì bạn bị chặn ở mọi repo kể cả repo không có Laravel.</span></p></div>
+</section>
+
+<!-- ================= 04 ================= -->
+<section id="s4">
+  <div class="snum">04</div>
+  <h2>Tầng nào thắng — bộ giải</h2>
+
+  <div class="naive"><div class="lbl">câu hỏi ngây thơ</div>
+    <q>Cùng repo, sao máy tôi Claude tự sửa file luôn còn máy đồng nghiệp thì nó hỏi từng lần?</q></div>
+
+  <div class="analogy"><div class="lbl">ẩn dụ</div>
+    <p><code>settings.json</code> hoạt động như <b>CSS specificity</b>: càng cụ thể càng thắng, cái thua bị vứt hẳn. Đây là nguồn của gần hết những bug “máy tôi chạy khác máy anh”.</p></div>
+
+  <div class="fig">
+    <div class="top"><span>Bật/tắt từng file rồi xem giá trị nào thắng</span>
+      <div class="ctrl">
+        <button id="scA">Máy bạn</button>
+        <button id="scB">Máy đồng nghiệp</button>
+        <button id="scC">Có policy công ty</button>
+      </div></div>
+    <div class="prec" id="prec"></div>
+    <div class="pres" id="pres"></div>
+    <div class="cap">Khoá đang giải: <code>permissions.defaultMode</code>. Bấm nút bên phải mỗi dòng để giả lập “file này có định nghĩa khoá đó”.</div>
+  </div>
+
+  <p>Trả lời câu hỏi ngây thơ: gần như chắc chắn máy bạn có <code>&lt;repo&gt;\.claude\settings.local.json</code> đặt <code>defaultMode: "acceptEdits"</code> — bạn tự thêm hôm nào đó rồi quên. File đó không vào git nên đồng nghiệp rơi về <code>settings.json</code> của team.</p>
+
+  <div class="check"><div class="lbl">tự kiểm tra</div>
+    <p>Thêm rule vào <code>~\.claude\settings.json</code> mà không có tác dụng. Kiểm tra theo thứ tự nào? <span class="ans">— Từ trên xuống trong hình: managed policy → tham số dòng lệnh → settings.local.json → settings.json của team. Cái đầu tiên định nghĩa khoá đó chính là cái đang thắng. Dùng <code>/config</code> để xem kết quả thật sau khi merge.</span></p></div>
+</section>
+
+<!-- ================= 05 ================= -->
+<section id="s5">
+  <div class="snum">05</div>
+  <h2>Đè lên nhau vs cộng dồn</h2>
+
+  <div class="naive"><div class="lbl">câu hỏi ngây thơ</div>
+    <q>CLAUDE.md cũng có ở hai tầng. Nó cũng đè nhau như settings chứ gì?</q></div>
+
+  <p>Không. Hai file trong <code>.claude\</code> hợp nhất theo <b>hai luật hoàn toàn khác nhau</b>, và nhầm chỗ này là nguồn của rất nhiều hiểu lầm.</p>
+
+  <div class="fig">
+    <div class="top"><span>Hai luật hợp nhất, đặt cạnh nhau</span>
+      <div class="ctrl"><button id="mergeBtn">Chạy lại</button></div></div>
+    <div class="body">
+      <svg viewBox="0 0 900 300" role="img" aria-label="So sánh đè lên nhau và cộng dồn">
+        <text x="20" y="24" font-family="'Space Grotesk',sans-serif" font-size="13" font-weight="700" fill="#171A19">settings.json — đè</text>
+        <text x="20" y="44" font-family="'Source Serif 4',serif" font-size="12" fill="#5C605D">chỉ một cái sống sót</text>
+        <g id="ovG">
+          <g class="ov" data-i="0"><rect x="20" y="70" width="330" height="32" fill="#2B3A55"/><text x="34" y="91" font-family="'JetBrains Mono',monospace" font-size="11" fill="#FFF">managed-settings.json</text></g>
+          <g class="ov" data-i="1"><rect x="20" y="110" width="330" height="32" fill="#4A6E93"/><text x="34" y="131" font-family="'JetBrains Mono',monospace" font-size="11" fill="#FFF">settings.local.json</text></g>
+          <g class="ov" data-i="2"><rect x="20" y="150" width="330" height="32" fill="#7FA0C2"/><text x="34" y="171" font-family="'JetBrains Mono',monospace" font-size="11" fill="#FFF">settings.json (team)</text></g>
+          <g class="ov" data-i="3"><rect x="20" y="190" width="330" height="32" fill="#B9C8D8"/><text x="34" y="211" font-family="'JetBrains Mono',monospace" font-size="11" fill="#2B3A55">~/.claude/settings.json</text></g>
+        </g>
+        <text id="ovNote" x="20" y="252" font-family="'Space Grotesk',sans-serif" font-size="12" fill="#A03325" opacity="0">ba file dưới bị vứt hoàn toàn</text>
+
+        <line x1="450" y1="10" x2="450" y2="290" stroke="#D6D3CA" stroke-width="1"/>
+
+        <text x="500" y="24" font-family="'Space Grotesk',sans-serif" font-size="13" font-weight="700" fill="#171A19">CLAUDE.md — cộng dồn</text>
+        <text x="500" y="44" font-family="'Source Serif 4',serif" font-size="12" fill="#5C605D">tất cả cùng vào context</text>
+        <g id="acG">
+          <g class="ac" data-i="0"><rect x="500" y="190" width="330" height="32" fill="#4A6E93"/><text x="514" y="211" font-family="'JetBrains Mono',monospace" font-size="11" fill="#FFF">~/.claude/CLAUDE.md</text></g>
+          <g class="ac" data-i="1"><rect x="500" y="152" width="330" height="32" fill="#5F86AC"/><text x="514" y="173" font-family="'JetBrains Mono',monospace" font-size="11" fill="#FFF">&lt;repo&gt;/CLAUDE.md</text></g>
+          <g class="ac" data-i="2"><rect x="500" y="114" width="330" height="32" fill="#7FA0C2"/><text x="514" y="135" font-family="'JetBrains Mono',monospace" font-size="11" fill="#FFF">@docs/coding-standard.md</text></g>
+          <g class="ac" data-i="3"><rect x="500" y="76" width="330" height="32" fill="#9DB6CD"/><text x="514" y="97" font-family="'JetBrains Mono',monospace" font-size="11" fill="#2B3A55">app/Services/CLAUDE.md</text></g>
+        </g>
+        <path d="M846 222 L846 76" stroke="#8F6412" stroke-width="1.5" marker-end="url(#a5)"/>
+        <text x="856" y="152" font-family="'Space Grotesk',sans-serif" font-size="11" fill="#8F6412" transform="rotate(90 856 152)">token mỗi lượt</text>
+        <defs><marker id="a5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8F6412"/></marker></defs>
+        <text id="acNote" x="500" y="252" font-family="'Space Grotesk',sans-serif" font-size="12" fill="#8F6412" opacity="0">không ai bị vứt — kể cả khi mâu thuẫn nhau</text>
+      </svg>
+    </div>
+    <div class="cap">Bên trái vứt bớt nên an toàn. Bên phải giữ hết nên <b>hai file có thể mâu thuẫn mà không ai thắng</b> — Claude phải tự đoán.</div>
+  </div>
+
+  <ul class="plain" data-conf="d">
+    <li><b>Đi ngược lên cây thư mục.</b> Claude tìm <code>CLAUDE.md</code> từ thư mục hiện tại lên tới root — hữu ích cho monorepo.</li>
+    <li><b>Nạp lazy ở thư mục con.</b> Khi đọc file trong <code>app/Services/</code>, nếu ở đó có <code>CLAUDE.md</code> thì mới nạp thêm.</li>
+    <li><b>Import bằng <code>@</code>.</b> <code>@docs/coding-standard.md</code> nhúng file khác vào. Lồng nhau tối đa <span data-conf="v">5 cấp (verify)</span>. Import được cả từ home.</li>
+    <li><b>Lệnh.</b> <code>/init</code> sinh CLAUDE.md; <code>/memory</code> mở để sửa; gõ <code>#</code> đầu dòng để thêm nhanh.</li>
+  </ul>
+
+  <div class="code"><header><span>D:\work\ec-site-tanaka\CLAUDE.md</span><span>ngắn có chủ đích</span></header>
+<pre><span class="k">## Lệnh</span>
+- test:        php artisan test --parallel
+- test 1 file: php artisan test --filter=OrderServiceTest
+- lint:        ./vendor/bin/pint
+- static:      ./vendor/bin/phpstan analyse --memory-limit=1G
+
+<span class="k">## Kiến trúc</span>
+- Controller mỏng. Business logic ở app/Services/*Service.php
+- Query phức tạp ở app/Repositories, KHÔNG viết trong Controller
+- Form Request cho mọi validation
+
+<span class="k">## Quy ước client Nhật</span>
+- PHPDoc tiếng Nhật, tên biến tiếng Anh
+- Migration phải có down() chạy được, khách sẽ review
+- Không trả model thẳng ra API, luôn qua Resource
+
+<span class="k">## Gotcha</span>
+- DB timezone Asia/Tokyo, config/app.php để UTC → luôn CarbonImmutable
+- Queue chạy bằng supervisor, sửa job phải nhắc restart
+
+@docs/coding-standard.md</pre></div>
+
+  <div class="trap"><div class="lbl">bẫy</div>
+    <p>Cám dỗ lớn nhất là nhét cả tài liệu thiết kế vào <code>CLAUDE.md</code>. Nó ăn context <b>mỗi lượt</b>, đẩy nhanh tới ngưỡng auto-compact, và làm loãng những dòng thật sự quan trọng. Tài liệu dài để trong <code>docs/</code> rồi trỏ bằng <code>@</code>.</p></div>
+
+  <div class="check"><div class="lbl">tự kiểm tra</div>
+    <p>Quy tắc “dùng CarbonImmutable” nên ở CLAUDE.md của repo hay của user? <span class="ans">— Của repo. Đó là sự thật về codebase, không phải sở thích của bạn. Phép thử: nếu đồng nghiệp cũng cần biết thì nó thuộc về repo và phải vào git.</span></p></div>
+</section>
+
+<!-- ================= 06 ================= -->
+<section id="s6">
+  <div class="snum">06</div>
+  <h2>Bốn cơ chế — bản đồ hai trục</h2>
+
+  <div class="naive"><div class="lbl">câu hỏi ngây thơ</div>
+    <q>Slash command, skill, subagent, hook — đều là file .md trong .claude\. Khác nhau chỗ nào?</q></div>
+
+  <div class="analogy"><div class="lbl">ẩn dụ</div>
+    <p>Đừng phân biệt bằng định dạng file. Phân biệt bằng <b>ai bấm nút</b> và <b>bên trong là prompt hay là code</b>. Hai câu hỏi đó cho bạn một mặt phẳng, và bốn cơ chế rơi vào bốn góc khác nhau.</p></div>
+
+  <div class="fig">
+    <div class="top"><span>Bấm vào từng chấm</span></div>
+    <div class="body">
+      <svg viewBox="0 0 900 430" role="img" aria-label="Bản đồ bốn cơ chế theo hai trục">
+        <line x1="120" y1="370" x2="860" y2="370" stroke="#B4B1A6" stroke-width="1.5"/>
+        <line x1="120" y1="30" x2="120" y2="370" stroke="#B4B1A6" stroke-width="1.5"/>
+        <text x="490" y="404" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="12.5" fill="#5C605D">ai quyết định gọi  →</text>
+        <text x="140" y="392" font-family="'Space Grotesk',sans-serif" font-size="11.5" fill="#8A8D88">bạn gõ</text>
+        <text x="470" y="392" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="11.5" fill="#8A8D88">model tự chọn</text>
+        <text x="856" y="392" text-anchor="end" font-family="'Space Grotesk',sans-serif" font-size="11.5" fill="#8A8D88">hệ thống tự bật</text>
+        <text x="60" y="200" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="12.5" fill="#5C605D" transform="rotate(-90 60 200)">bên trong là gì  →</text>
+        <text x="104" y="344" text-anchor="end" font-family="'Space Grotesk',sans-serif" font-size="11.5" fill="#8A8D88">prompt</text>
+        <text x="104" y="60" text-anchor="end" font-family="'Space Grotesk',sans-serif" font-size="11.5" fill="#8A8D88">code chạy thật</text>
+
+        <line x1="120" y1="200" x2="860" y2="200" stroke="#E4E1D8" stroke-width="1" stroke-dasharray="4 4"/>
+        <line x1="490" y1="30" x2="490" y2="370" stroke="#E4E1D8" stroke-width="1" stroke-dasharray="4 4"/>
+
+        <g class="qdot" data-q="cmd" tabindex="0" role="button" aria-label="Slash command">
+          <circle cx="210" cy="318" r="10" fill="#4A6E93"/>
+          <text x="232" y="314" font-family="'Space Grotesk',sans-serif" font-size="14" font-weight="700" fill="#171A19">Slash command</text>
+          <text x="232" y="333" font-family="'Source Serif 4',serif" font-size="12" fill="#5C605D">bạn gõ /review-jp</text>
+        </g>
+        <g class="qdot" data-q="skill" tabindex="0" role="button" aria-label="Skill">
+          <circle cx="500" cy="286" r="10" fill="#1F6B57"/>
+          <text x="522" y="282" font-family="'Space Grotesk',sans-serif" font-size="14" font-weight="700" fill="#171A19">Skill</text>
+          <text x="522" y="301" font-family="'Source Serif 4',serif" font-size="12" fill="#5C605D">Claude tự thấy khớp mô tả</text>
+        </g>
+        <g class="qdot" data-q="agent" tabindex="0" role="button" aria-label="Subagent">
+          <circle cx="600" cy="196" r="10" fill="#8F6412"/>
+          <text x="622" y="192" font-family="'Space Grotesk',sans-serif" font-size="14" font-weight="700" fill="#171A19">Subagent</text>
+          <text x="622" y="211" font-family="'Source Serif 4',serif" font-size="12" fill="#5C605D">Claude giao việc, context riêng</text>
+        </g>
+        <g class="qdot" data-q="hook" tabindex="0" role="button" aria-label="Hook">
+          <circle cx="790" cy="86" r="10" fill="#A03325"/>
+          <text x="768" y="66" text-anchor="end" font-family="'Space Grotesk',sans-serif" font-size="14" font-weight="700" fill="#171A19">Hook</text>
+          <text x="768" y="85" text-anchor="end" font-family="'Source Serif 4',serif" font-size="12" fill="#5C605D">không ai hỏi ý model</text>
+        </g>
+        <text x="838" y="52" text-anchor="end" font-family="'Space Grotesk',sans-serif" font-size="11.5" fill="#A03325">vùng đảm bảo tuyệt đối</text>
+      </svg>
+    </div>
+    <div class="quad-info" id="quadInfo"></div>
+    <div class="cap">Càng đi lên trên và sang phải, bạn càng có đảm bảo chắc chắn hơn nhưng mất đi sự linh hoạt. Càng xuống dưới bên trái thì ngược lại.</div>
+  </div>
+
+  <div class="code"><header><span>.claude\commands\review-jp.md</span><span>gọi bằng /review-jp OrderService</span></header>
+<pre>---
+description: Review code theo checklist bàn giao client Nhật
+argument-hint: [tên class hoặc đường dẫn]
+allowed-tools: Read, Grep, Bash(git diff:*)
+model: claude-opus-5
+---
+
+Review <span class="k">$1</span> theo đúng thứ tự sau, không bỏ bước:
+
+1. Diff hiện tại:  !`git diff --stat`
+2. Checklist công ty:  @docs/review-checklist-jp.md
+3. Mỗi phát hiện ghi rõ: severity / file:line / cách sửa
+4. Kết luận phải là APPROVED hoặc CHANGES_REQUESTED</pre></div>
+  <p class="note" data-conf="d"><code>$1</code>, <code>$2</code> là tham số theo vị trí, <code>$ARGUMENTS</code> lấy tất cả. Dấu <code>!</code> + backtick chạy shell và chèn output. Dấu <code>@</code> nhúng file. Thư mục con tạo namespace: <code>commands\jp\review.md</code> → <code>/jp:review</code>.</p>
+
+  <div class="trap"><div class="lbl">bẫy</div>
+    <p>Đoạn <code>!`git diff --stat`</code> chạy qua Bash tool, tức là <b>qua Git Bash</b> (mục 2). Viết <code>!`Get-ChildItem`</code> vì tưởng mình đang ở PowerShell thì fail.</p></div>
+
+  <div class="check"><div class="lbl">tự kiểm tra</div>
+    <p>Muốn <b>chắc chắn</b> mỗi lần Claude sửa file PHP thì Pint chạy format lại. Dùng cái nào? <span class="ans">— Hook. Ba cái còn lại đều phụ thuộc model có nhớ làm hay không. Khi yêu cầu là “chắc chắn”, câu trả lời gần như luôn là hook.</span></p></div>
+</section>
+
+<!-- ================= 07 ================= -->
+<section id="s7">
+  <div class="snum">07</div>
+  <h2>Hooks — dòng thời gian một phiên</h2>
+
+  <div class="naive"><div class="lbl">câu hỏi ngây thơ</div>
+    <q>Tôi copy ví dụ hook trong docs vào settings.json, không lỗi mà cũng không chạy.</q></div>
+
+  <div class="analogy"><div class="lbl">ẩn dụ</div>
+    <p>Hook là <b>công tắc hành trình trên dây chuyền</b>: đến đúng vị trí thì bật, không cần ai ra lệnh. Vấn đề là công tắc trong tài liệu được đấu theo điện Linux. Cắm vào ổ Windows thì không nổ, nhưng cũng không chạy.</p></div>
+
+  <div class="fig">
+    <div class="top"><span>Bấm vào từng điểm trên dòng thời gian</span></div>
+    <div class="body">
+      <svg viewBox="0 0 900 210" role="img" aria-label="Dòng thời gian các hook event">
+        <line x1="40" y1="96" x2="860" y2="96" stroke="#B4B1A6" stroke-width="2"/>
+        <g id="tlG"></g>
+        <rect x="300" y="160" width="200" height="26" fill="rgba(160,51,37,.1)" stroke="#A03325" stroke-dasharray="3 3"/>
+        <text x="400" y="178" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="11" fill="#A03325">vòng lặp tool · lặp nhiều lần</text>
+      </svg>
+    </div>
+    <div class="tl-info" id="tlInfo"></div>
+    <div class="cap">Chỉ <code>PreToolUse</code> và <code>UserPromptSubmit</code> chặn được. Các event còn lại chỉ quan sát và phản ứng.</div>
+  </div>
+
+  <h4>Giao thức: stdin JSON vào, exit code ra</h4>
+  <ul class="plain" data-conf="d">
+    <li><b>exit 0</b> — cho qua.</li>
+    <li><b>exit 2</b> — <b>chặn</b>. stderr được đưa lại cho Claude như lời giải thích.</li>
+    <li><b>exit khác</b> — lỗi, nhưng không chặn.</li>
+    <li>Hoặc in JSON ra stdout với <code>decision</code> / <code>reason</code> để kiểm soát tinh hơn.</li>
+  </ul>
+
+  <div class="code"><header><span>.claude\hooks\gate-merge.ps1</span><span data-conf="v">tên field payload cần verify</span></header>
+<pre><span class="c"># Chặn git merge nếu chưa có code review APPROVED</span>
+<span class="k">$payload</span> = [Console]::In.ReadToEnd() | ConvertFrom-Json
+<span class="k">$cmd</span>     = <span class="k">$payload</span>.tool_input.command
+
+if (<span class="k">$cmd</span> -match <span class="g">'git\s+merge'</span>) {
+  <span class="k">$report</span> = <span class="g">"docs/code-review-report.md"</span>
+  <span class="k">$ok</span> = (Test-Path <span class="k">$report</span>) -and
+        (Select-String -Path <span class="k">$report</span> -Pattern <span class="g">'APPROVED'</span> -Quiet)
+  if (-not <span class="k">$ok</span>) {
+    [Console]::Error.WriteLine(<span class="r">"Chua co code review APPROVED. Chay /review truoc."</span>)
+    exit <span class="r">2</span>        <span class="c"># 2 = chặn tool call</span>
+  }
+}
+exit 0</pre></div>
+
+  <div class="code"><header><span>&lt;repo&gt;\.claude\settings.json</span><span>đăng ký hook</span></header>
+<pre>{
+  <span class="k">"hooks"</span>: {
+    <span class="k">"PreToolUse"</span>: [{
+      <span class="k">"matcher"</span>: <span class="g">"Bash"</span>,
+      <span class="k">"hooks"</span>: [{
+        <span class="k">"type"</span>: <span class="g">"command"</span>,
+        <span class="k">"command"</span>: <span class="g">"powershell -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/gate-merge.ps1"</span>,
+        <span class="k">"timeout"</span>: 10
+      }]
+    }]
+  }
+}</pre></div>
+
+  <div class="trap"><div class="lbl">bẫy — chỗ cần verify nhất tài liệu này</div>
+    <p data-conf="v">Tôi <b>không chắc</b> shell nào thực thi trường <code>command</code> trên native Windows (cmd.exe hay bash). An toàn nhất là gọi tường minh <code>powershell -NoProfile -File …</code> hoặc <code>cmd /c …</code>. Và <b>test bằng hook echo vô hại trước</b> — hook chặn mà hỏng thì khoá luôn tool, rất mất thời gian tìm.</p></div>
+
+  <div class="trap"><div class="lbl">bẫy — bảo mật</div>
+    <p>Hook chạy <b>mã tuỳ ý với đúng quyền và credentials của bạn</b>, tự động, không hỏi. Một hook trong repo bạn vừa clone là lỗ hổng thật. Đọc <code>.claude\settings.json</code> của repo lạ trước khi mở bằng Claude Code.</p></div>
+
+  <div class="check"><div class="lbl">tự kiểm tra</div>
+    <p>Hook <code>PostToolUse</code> chạy Pint bị fail (exit 1). Claude có bị chặn không? <span class="ans">— Không. Chỉ <code>exit 2</code> mới chặn, và <code>PostToolUse</code> thì tool đã chạy xong rồi. Muốn ngăn từ đầu phải dùng <code>PreToolUse</code>.</span></p></div>
+</section>
+
+<!-- ================= 08 ================= -->
+<section id="s8">
+  <div class="snum">08</div>
+  <h2>Quyền — máy mô phỏng</h2>
+
+  <div class="naive"><div class="lbl">câu hỏi ngây thơ</div>
+    <q>Claude có thể xoá nhầm file ngoài project của tôi không?</q></div>
+
+  <div class="analogy"><div class="lbl">ẩn dụ</div>
+    <p>Mặc định Claude làm việc trong <b>phòng là thư mục hiện tại</b> và phải xin phép mỗi lần ra ngoài hoặc dùng dụng cụ nguy hiểm. Nhưng đây là văn phòng thật: không có nút reset, cái đã xoá phải lấy lại từ git.</p></div>
+
+  <div class="code"><header><span>&lt;repo&gt;\.claude\settings.json</span><span>bộ rule dùng cho máy mô phỏng bên dưới</span></header>
+<pre>{
+  <span class="k">"permissions"</span>: {
+    <span class="k">"allow"</span>: [ <span class="g">"Bash(php artisan test:*)"</span>, <span class="g">"Bash(./vendor/bin/pint:*)"</span>,
+               <span class="g">"Bash(composer install)"</span>, <span class="g">"Read(./**)"</span> ],
+    <span class="k">"deny"</span>:  [ <span class="r">"Bash(php artisan migrate:fresh:*)"</span>, <span class="r">"Bash(git push --force:*)"</span>,
+               <span class="r">"Read(./.env)"</span> ],
+    <span class="k">"ask"</span>:   [ <span class="y">"Bash(git push:*)"</span> ],
+    <span class="k">"defaultMode"</span>: <span class="g">"default"</span>
+  }
+}</pre></div>
+
+  <div class="fig">
+    <div class="top"><span>Chọn một hành động, xem nó bị xử lý thế nào</span></div>
+    <div class="psim">
+      <div class="pcmds" id="pcmds"></div>
+      <div class="pout" id="pout"></div>
+    </div>
+    <div class="cap">Thứ tự giải: <code>deny</code> xét trước, rồi <code>ask</code>, rồi <code>allow</code>. Không khớp rule nào thì rơi về <code>defaultMode</code>.</div>
+  </div>
+
+  <h4>Bốn chế độ</h4>
+  <div class="tbl"><table data-conf="d">
+    <tr><th>Mode</th><th>Hành vi</th><th>Khi nào dùng</th></tr>
+    <tr><td class="m">default</td><td class="s">Hỏi trước mỗi hành động có ảnh hưởng</td><td class="s">Giữ nguyên cho repo client.</td></tr>
+    <tr><td class="m">acceptEdits</td><td class="s">Tự sửa file, vẫn hỏi khi chạy lệnh</td><td class="s">Refactor nhiều file, khi git đang sạch.</td></tr>
+    <tr><td class="m">plan</td><td class="s">Chỉ đọc, không ghi, không chạy</td><td class="s">Cho Claude khảo sát và đề xuất trước.</td></tr>
+    <tr class="no"><td class="m">bypassPermissions</td><td class="s">Không hỏi gì cả</td><td class="s">Chỉ trong container/CI cô lập. Không bao giờ trên máy có repo client.</td></tr>
+  </table></div>
+
+  <div class="trap"><div class="lbl">bẫy — viết path trên Windows</div>
+    <p data-conf="v">Trong JSON, <code>\</code> là ký tự escape. Viết <code>"Read(.\storage\**)"</code> là sai; phải là <code>"Read(./storage/**)"</code> hoặc <code>"Read(.\\storage\\**)"</code>. Tôi <b>không chắc</b> quy tắc khớp path trên Windows chuẩn hoá dấu gạch tới mức nào — test một rule trước khi phổ biến cho team, và ưu tiên dấu <code>/</code>.</p></div>
+
+  <div class="check"><div class="lbl">tự kiểm tra</div>
+    <p>Thêm <code>"Read(./.env)"</code> vào <code>deny</code> có ngăn Claude chạy <code>cat .env</code> qua Bash không? <span class="ans">— Không hiển nhiên. <code>Read</code> và <code>Bash</code> là hai tool khác nhau; chặn cái này không tự chặn cái kia. Muốn kín phải chặn cả pattern Bash tương ứng — hãy thử đúng mục đó trong máy mô phỏng ở trên.</span></p></div>
+</section>
+
+<!-- ================= 09 ================= -->
+<section id="s9">
+  <div class="snum">09</div>
+  <h2>MCP và cái bẫy <code>cmd /c</code></h2>
+
+  <div class="naive"><div class="lbl">câu hỏi ngây thơ</div>
+    <q>Tôi khai báo MCP y hệt bài hướng dẫn. Máy Mac của bạn tôi chạy, máy tôi thì không.</q></div>
+
+  <div class="analogy"><div class="lbl">ẩn dụ</div>
+    <p>MCP server là <b>thiết bị cắm thêm</b> — cho Claude cửa vào Jira, database, Figma. Vấn đề rất vật lý: trên Windows, phích <code>npx</code> không cắm thẳng vào ổ được. Phải qua cục chuyển tên <code>cmd /c</code>.</p></div>
+
+  <div class="fig">
+    <div class="top"><span>Cùng một server, hai hệ điều hành</span></div>
+    <div class="body">
+      <svg viewBox="0 0 900 220" role="img" aria-label="So sánh cấu hình MCP trên macOS và Windows">
+        <rect x="20" y="20" width="410" height="180" fill="#FFF" stroke="#D6D3CA"/>
+        <text x="40" y="48" font-family="'Space Grotesk',sans-serif" font-size="13" font-weight="700" fill="#1F6B57">macOS / Linux</text>
+        <text x="40" y="84" font-family="'JetBrains Mono',monospace" font-size="12" fill="#5C605D">"command": <tspan fill="#1F6B57">"npx"</tspan>,</text>
+        <text x="40" y="106" font-family="'JetBrains Mono',monospace" font-size="12" fill="#5C605D">"args": [</text>
+        <text x="40" y="128" font-family="'JetBrains Mono',monospace" font-size="12" fill="#5C605D">  "-y", "@mcp/server-fs",</text>
+        <text x="40" y="150" font-family="'JetBrains Mono',monospace" font-size="12" fill="#5C605D">  "/Users/you/work"</text>
+        <text x="40" y="172" font-family="'JetBrains Mono',monospace" font-size="12" fill="#5C605D">]</text>
+
+        <rect x="470" y="20" width="410" height="180" fill="#FFF" stroke="#A03325" stroke-width="1.5"/>
+        <text x="490" y="48" font-family="'Space Grotesk',sans-serif" font-size="13" font-weight="700" fill="#A03325">Windows native</text>
+        <rect x="486" y="70" width="240" height="20" fill="rgba(160,51,37,.12)"/>
+        <text x="490" y="84" font-family="'JetBrains Mono',monospace" font-size="12" fill="#5C605D">"command": <tspan fill="#A03325" font-weight="700">"cmd"</tspan>,</text>
+        <rect x="486" y="92" width="300" height="20" fill="rgba(160,51,37,.12)"/>
+        <text x="490" y="106" font-family="'JetBrains Mono',monospace" font-size="12" fill="#5C605D">"args": [ <tspan fill="#A03325" font-weight="700">"/c"</tspan>, <tspan fill="#1F6B57">"npx"</tspan>,</text>
+        <text x="490" y="128" font-family="'JetBrains Mono',monospace" font-size="12" fill="#5C605D">  "-y", "@mcp/server-fs",</text>
+        <text x="490" y="150" font-family="'JetBrains Mono',monospace" font-size="12" fill="#5C605D">  "D:/work/ec-site-tanaka"</text>
+        <text x="490" y="172" font-family="'JetBrains Mono',monospace" font-size="12" fill="#5C605D">]</text>
+        <text x="860" y="196" text-anchor="end" font-family="'Space Grotesk',sans-serif" font-size="11.5" fill="#A03325">khác nhau đúng hai token</text>
+      </svg>
+    </div>
+    <div class="cap" data-conf="v">Đây là gotcha được ghi nhận rộng rãi, nhưng cú pháp chính xác nên verify lại với docs hiện hành.</div>
+  </div>
+
+  <h4>Ba scope — chọn sai là lộ ra ngoài</h4>
+  <div class="tbl"><table data-conf="d">
+    <tr><th>Scope</th><th>Ghi ở đâu</th><th>Ai thấy</th></tr>
+    <tr><td class="m">local</td><td class="s">state của bạn, theo từng project</td><td class="s">Chỉ bạn, chỉ project này. Mặc định.</td></tr>
+    <tr><td class="m">project</td><td class="s"><code>&lt;repo&gt;\.mcp.json</code> — commit vào git</td><td class="s">Cả team, và <b>cả khách khi bàn giao repo</b>.</td></tr>
+    <tr><td class="m">user</td><td class="s">config user của bạn</td><td class="s">Chỉ bạn, nhưng ở mọi project.</td></tr>
+  </table></div>
+  <p class="note" data-conf="d">Transport: <code>stdio</code> (process local), <code>SSE</code> và <code>HTTP</code> (server từ xa, có OAuth). Quản lý bằng <code>claude mcp add</code> / <code>list</code> / <code>remove</code> với cờ <code>--scope</code>, hoặc <code>/mcp</code> trong phiên. <code>${VAR}</code> trong <code>.mcp.json</code> được expand từ biến môi trường — đó là cách commit file này mà không lộ token.</p>
+
+  <div class="trap"><div class="lbl">bẫy</div>
+    <p><code>.mcp.json</code> vào git nghĩa là <b>ai clone repo cũng được đề nghị chạy những server đó</b>. Với repo có người ngoài đóng góp, đây là bề mặt tấn công. Đừng bật <code>enableAllProjectMcpServers</code> vô điều kiện ở tầng user.</p></div>
+
+  <div class="check"><div class="lbl">tự kiểm tra</div>
+    <p>Cần MCP nội bộ công ty cho <em>mọi</em> repo, nhưng không muốn nó xuất hiện trong repo của khách. Scope nào? <span class="ans">— <code>user</code>. Scope <code>project</code> ghi vào <code>.mcp.json</code> và đi theo repo tới tay khách.</span></p></div>
+</section>
+
+<!-- ================= 10 ================= -->
+<section id="s10">
+  <div class="snum">10</div>
+  <h2>Context đầy dần — chạy thử</h2>
+
+  <div class="naive"><div class="lbl">câu hỏi ngây thơ</div>
+    <q>Làm việc một lúc thì Claude bắt đầu quên. Nó bị gì vậy?</q></div>
+
+  <div class="analogy"><div class="lbl">ẩn dụ</div>
+    <p>Context là <b>cái bàn làm việc có diện tích cố định</b>. <code>CLAUDE.md</code> là tấm lót bàn — chiếm chỗ ngay từ đầu và không bao giờ dọn đi. Mỗi lượt trao đổi là thêm một tờ giấy. Bàn đầy thì có người đến gom hết giấy lại, viết tóm tắt vào một tờ, rồi vứt phần còn lại. Đó là auto-compact.</p></div>
+
+  <div class="fig">
+    <div class="top"><span>Bấm để chạy một phiên làm việc</span>
+      <div class="ctrl">
+        <button id="cmRun">Chạy 1 lượt</button>
+        <button id="cmRun10">Chạy 10 lượt</button>
+        <button id="cmReset">Reset</button>
+        <button id="cmBig">CLAUDE.md 4000 dòng</button>
+      </div></div>
+    <div class="cm">
+      <div class="cmbar">
+        <div class="cmseg cm-base" id="cmBase" style="width:6%"></div>
+        <div class="cmseg cm-hist" id="cmHist" style="width:0%"></div>
+      </div>
+      <div class="cmlab">
+        <span style="color:var(--ochre)">■ CLAUDE.md — trả tiền mỗi lượt</span>
+        <span style="color:var(--l1)">■ hội thoại + file đã đọc</span>
+        <span id="cmPct">6%</span>
+      </div>
+      <div class="cmlog" id="cmLog"><div>phiên mới · context 6%</div></div>
+    </div>
+    <div class="cap">Bấm “CLAUDE.md 4000 dòng” rồi chạy lại: bạn sẽ thấy số lượt trước khi compact giảm đi rõ rệt. Đó là cái giá thật của việc nhét tài liệu thiết kế vào memory.</div>
+  </div>
+
+  <div class="code"><header><span>C:\Users\&lt;bạn&gt;\.claude\projects\</span><span data-conf="o">format nội bộ</span></header>
+<pre>projects\
+├── D--work-ec-site-tanaka\        <span class="c"># tên = đường dẫn repo đã encode</span>
+│   ├── 1f4c8e2a-….jsonl           <span class="c"># một phiên = một file</span>
+│   └── 9b0d3311-….jsonl
+└── D--work-crm-sato\</pre></div>
+  <p class="note">Session được index <b>theo đường dẫn thư mục làm việc</b>. Đổi tên thư mục repo là mất liên kết resume — file cũ vẫn còn nhưng <code>--continue</code> ở thư mục mới không thấy.</p>
+
+  <ul class="plain" data-conf="d">
+    <li><code>/context</code> — xem đang dùng bao nhiêu. Nhìn cái này trước khi than “Claude quên”.</li>
+    <li><code>/compact</code> — nén thủ công, giữ kết luận bỏ chi tiết.</li>
+    <li><code>/clear</code> — xoá sạch. Rẻ hơn compact và thường đúng hơn khi bạn chuyển sang task khác hẳn.</li>
+    <li><code>/rewind</code> — quay lại checkpoint, có thể khôi phục cả trạng thái code. <span data-conf="o">Vị trí lưu không được document rõ.</span></li>
+  </ul>
+
+  <div class="trap"><div class="lbl">bẫy</div>
+    <p><code>/compact</code> <b>làm mất chi tiết</b>. Đang giữa một task cần chính xác (viết migration theo spec khách) mà compact thì Claude có thể quên một ràng buộc bạn dặn 40 lượt trước. Với việc quan trọng, <b>ghi kết luận ra file trước khi compact</b> — hoặc dùng hook <code>PreCompact</code> để tự động làm việc đó.</p></div>
+
+  <div class="check"><div class="lbl">tự kiểm tra</div>
+    <p>Vì sao “ghi ra file” đáng tin hơn “để trong hội thoại”? <span class="ans">— Vì context hữu hạn và bị nén định kỳ, còn file thì không. Đó chính là nguyên lý của pipeline ở mục 12: trạng thái sống trên disk, không sống trong đầu Claude.</span></p></div>
+</section>
+
+<!-- ================= 11 ================= -->
+<section id="s11">
+  <div class="snum">11</div>
+  <h2>Commit hay ignore — tự chấm</h2>
+
+  <div class="naive"><div class="lbl">câu hỏi ngây thơ</div>
+    <q>Thư mục <code>.claude</code> trong repo — nên commit hay ignore?</q></div>
+
+  <p>Câu trả lời là “cả hai”, và ranh giới rất rõ: <b>commit thứ mô tả dự án, ignore thứ mô tả cái máy của bạn.</b> Thử tự phân loại trước khi xem đáp án.</p>
+
+  <div class="fig">
+    <div class="top"><span>Chọn cho từng file rồi bấm chấm điểm</span></div>
+    <div class="quiz" id="quiz"></div>
+  </div>
+
+  <div class="trap"><div class="lbl">bẫy</div>
+    <p>Repo bàn giao cho client Nhật thì <code>.claude\</code> cũng đi theo. Hooks và commands trong đó <b>là code sẽ chạy trên máy khách</b>, còn <code>CLAUDE.md</code> là thứ khách sẽ đọc. Review chúng trong pull request đúng như review code — đừng để lọt ghi chú kiểu “chỗ này làm tạm cho kịp deadline”.</p></div>
+
+  <div class="check"><div class="lbl">tự kiểm tra</div>
+    <p>Muốn dùng <code>acceptEdits</code> cho riêng mình ở repo này, ghi vào đâu? <span class="ans">— <code>.claude\settings.local.json</code>, và đảm bảo nó đã nằm trong <code>.gitignore</code>.</span></p></div>
+</section>
+
+<!-- ================= 12 ================= -->
+<section id="s12">
+  <div class="snum">12</div>
+  <h2>9 agent Digi Dinos — sơ đồ</h2>
+
+  <div class="naive"><div class="lbl">câu hỏi ngây thơ</div>
+    <q>Pipeline 9 agent đang là 9 file SKILL.md. Chuyển sang máy host thì để đâu?</q></div>
+
+  <p>Đừng chuyển nguyên xi. Chín agent không cùng loại việc nên không nên cùng một cơ chế. Áp bản đồ hai trục ở <a href="#s6">mục 6</a> thì pipeline tự tách làm bốn nhóm.</p>
+
+  <div class="fig">
+    <div class="top"><span>Trái: agent · Phải: file .md sinh ra trên disk</span></div>
+    <div class="body">
+      <svg viewBox="0 0 900 690" role="img" aria-label="Sơ đồ pipeline 9 agent và artifact">
+        <line x1="196" y1="30" x2="196" y2="640" stroke="#D6D3CA" stroke-width="2"/>
+        <g id="pipeG"></g>
+        <rect x="330" y="596" width="330" height="46" fill="rgba(160,51,37,.1)" stroke="#A03325" stroke-width="1.5"/>
+        <text x="495" y="616" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="12.5" font-weight="700" fill="#A03325">GATE · hook PreToolUse chặn git merge</text>
+        <text x="495" y="633" text-anchor="middle" font-family="'Source Serif 4',serif" font-size="11.5" fill="#5C605D">nếu code-review-report.md chưa có APPROVED</text>
+        <g font-family="'Space Grotesk',sans-serif" font-size="11.5">
+          <rect x="20" y="592" width="12" height="12" fill="#4A6E93"/><text x="40" y="603" fill="#5C605D">slash command</text>
+          <rect x="20" y="612" width="12" height="12" fill="#8F6412"/><text x="40" y="623" fill="#5C605D">subagent</text>
+          <rect x="20" y="632" width="12" height="12" fill="#1F6B57"/><text x="40" y="643" fill="#5C605D">skill + subagent</text>
+          <rect x="20" y="652" width="12" height="12" fill="#A03325"/><text x="40" y="663" fill="#5C605D">hook</text>
+        </g>
+      </svg>
+    </div>
+    <div class="cap">Trạng thái truyền qua file <code>.md</code> trên disk, không qua context. Nhờ vậy pipeline chịu được việc bạn <code>/clear</code> giữa chừng, tắt máy, hay đổi người làm tiếp.</div>
+  </div>
+
+  <p>Cái được thêm khi lên máy host là ba thứ không có ở môi trường chat: agent <b>chạm được vào code Laravel thật</b> (chạy <code>artisan test</code>, đọc <code>git diff</code>), <b>hook enforce được quy trình</b>, và <b>toàn bộ cấu hình đi vào git</b> nên cả team dùng chung một phiên bản.</p>
+
+  <div class="check"><div class="lbl">tự kiểm tra</div>
+    <p>Vì sao <code>release-manager</code> là hook chứ không phải subagent, dù nó cũng “làm việc”? <span class="ans">— Vì yêu cầu thật của nó không phải “viết release note” mà là “không cho merge khi chưa APPROVED”. Ràng buộc phải chắc chắn thì phải nằm ngoài model. Phần viết release note đúng là subagent — nhưng đó là việc khác, tách ra.</span></p></div>
+</section>
+
+<!-- ================= 13 ================= -->
+<section id="s13">
+  <div class="snum">13</div>
+  <h2>Dump cấu trúc thật trên máy bạn</h2>
+
+  <p>Bước cuối của Feynman: đối chiếu mô hình trong đầu với thực tế. Chạy lần lượt rồi so với các hình ở trên. Chỗ nào lệch thì thực tế đúng, tài liệu này sai.</p>
+
+  <div class="code"><header><span>PowerShell — chạy ở thư mục repo</span><span><button id="copyBtn" style="font-family:var(--grot);font-size:11px;border:1px solid var(--rule2);background:var(--card2);padding:2px 8px;cursor:pointer">copy</button></span></header>
+<pre id="psBlock"><span class="c"># 1 — Claude bản nào, cài ở đâu</span>
+Get-Command claude | Format-List Source, Version
+claude --version
+
+<span class="c"># 2 — chẩn đoán PATH, Git Bash, quyền  (quan trọng nhất)</span>
+claude doctor
+
+<span class="c"># 3 — cây tầng user, đối chiếu mục 3</span>
+tree /F <span class="g">"$env:USERPROFILE\.claude"</span> | Select-Object -First 80
+
+<span class="c"># 4 — settings user đang có key gì</span>
+Get-Content <span class="g">"$env:USERPROFILE\.claude\settings.json"</span> -Raw
+
+<span class="c"># 5 — .claude.json to cỡ nào</span>
+Get-Item <span class="g">"$env:USERPROFILE\.claude.json"</span> | Select-Object Length, LastWriteTime
+
+<span class="c"># 6 — bao nhiêu repo đang có transcript</span>
+Get-ChildItem <span class="g">"$env:USERPROFILE\.claude\projects"</span> -Directory | Select-Object Name
+
+<span class="c"># 7 — công ty đã set managed policy chưa</span>
+Test-Path <span class="g">"C:\ProgramData\ClaudeCode\managed-settings.json"</span>
+
+<span class="c"># 8 — Git Bash mà Claude sẽ dùng</span>
+<span class="k">$env:CLAUDE_CODE_GIT_BASH_PATH</span>
+Get-Command bash -ErrorAction SilentlyContinue | Select-Object Source
+
+<span class="c"># 9 — tầng project</span>
+tree /F .\.claude</pre></div>
+
+  <p class="note">Trong phiên Claude Code, bốn lệnh đáng nhớ: <code>/config</code> xem cấu hình thật sau khi merge 5 tầng, <code>/memory</code> xem những <code>CLAUDE.md</code> nào đang nạp và theo thứ tự nào, <code>/context</code> xem context đầy bao nhiêu, <code>/doctor</code> chẩn đoán cài đặt.</p>
+
+  <div class="check"><div class="lbl">tự kiểm tra</div>
+    <p>Nếu <code>/config</code> hiện một giá trị không có trong file nào ở mục 3 thì sao? <span class="ans">— Hoặc là mặc định của Claude Code, hoặc đến từ managed policy (bạn có thể không có quyền đọc), hoặc từ tham số dòng lệnh nằm trong alias bạn dùng để khởi động.</span></p></div>
+</section>
+
+<!-- ================= 14 ================= -->
+<section id="s14">
+  <div class="snum">14</div>
+  <h2>Tham chiếu nhanh</h2>
+  <div class="tbl"><table>
+    <tr><th>Đường dẫn / lệnh</th><th>Tầng</th><th>Dùng để</th></tr>
+    <tr data-conf="v"><td class="m">C:\ProgramData\ClaudeCode\managed-settings.json</td><td class="s">máy</td><td class="s">Chính sách công ty. Luôn thắng.</td></tr>
+    <tr data-conf="o"><td class="m">%USERPROFILE%\.claude.json</td><td class="s">user</td><td class="s">State ứng dụng. Không sửa tay.</td></tr>
+    <tr data-conf="d"><td class="m">%USERPROFILE%\.claude\settings.json</td><td class="s">user</td><td class="s">Mặc định của bạn cho mọi repo.</td></tr>
+    <tr data-conf="d"><td class="m">%USERPROFILE%\.claude\CLAUDE.md</td><td class="s">user</td><td class="s">Thói quen cá nhân. Cộng dồn, không đè.</td></tr>
+    <tr data-conf="d"><td class="m">%USERPROFILE%\.claude\projects\*.jsonl</td><td class="s">user</td><td class="s">Transcript phiên. Nguồn của <code>--resume</code>.</td></tr>
+    <tr data-conf="d"><td class="m">&lt;repo&gt;\CLAUDE.md</td><td class="s">project</td><td class="s">Sự thật về codebase. Commit.</td></tr>
+    <tr data-conf="d"><td class="m">&lt;repo&gt;\.claude\settings.json</td><td class="s">project</td><td class="s">Permission + hooks của team. Commit.</td></tr>
+    <tr data-conf="d"><td class="m">&lt;repo&gt;\.claude\settings.local.json</td><td class="s">project</td><td class="s">Override riêng bạn. Gitignore.</td></tr>
+    <tr data-conf="d"><td class="m">&lt;repo&gt;\.mcp.json</td><td class="s">project</td><td class="s">MCP dùng chung. Commit, token để <code>${VAR}</code>.</td></tr>
+    <tr data-conf="d"><td class="m">CLAUDE_CODE_GIT_BASH_PATH</td><td class="s">env</td><td class="s">Trỏ tới bash.exe khi Claude không tự tìm được.</td></tr>
+    <tr data-conf="d"><td class="m">DISABLE_TELEMETRY · DISABLE_AUTOUPDATER</td><td class="s">env</td><td class="s">Tắt telemetry / tắt tự cập nhật.</td></tr>
+    <tr data-conf="d"><td class="m">/config · /memory · /context · /doctor</td><td class="s">lệnh</td><td class="s">Bốn lệnh để nhìn thấy trạng thái thật thay vì đoán.</td></tr>
+  </table></div>
+</section>
+
+<footer>
+  <p><b>Mức độ tin cậy.</b> Tài liệu viết mà <b>không có quyền truy cập máy Windows của bạn</b> và <b>không đối chiếu trực tiếp được với docs.claude.com</b> lúc soạn. Phần khung khái niệm — ba tầng, hai luật hợp nhất, bốn cơ chế, giao thức hook — ổn định và ít khả năng sai. Phần chi tiết bề mặt — URL cài đặt, tên field payload hook, escape path, cú pháp <code>cmd /c</code>, mức hỗ trợ sandbox trên Windows — là chỗ đổi nhanh nhất và là chỗ tôi đánh dấu đỏ.</p>
+  <p><b>Việc tiếp theo.</b> Chạy mục 13, đối chiếu, sửa chỗ lệch, rồi mới đưa vào wiki nội bộ. Tài liệu sai về đường dẫn nguy hiểm hơn không có tài liệu, vì nó khiến người đọc tin nhầm.</p>
+  <p style="color:var(--ink3);font-size:13.5px">Verify tại <a href="https://docs.claude.com/en/docs/claude-code/overview" target="_blank" rel="noopener">docs.claude.com/en/docs/claude-code</a> — các trang <code>/setup</code>, <code>/settings</code>, <code>/memory</code>, <code>/slash-commands</code>, <code>/sub-agents</code>, <code>/skills</code>, <code>/hooks</code>, <code>/mcp</code>, <code>/iam</code>.</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+var SVGNS="http://www.w3.org/2000/svg";
+var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function el(id){return document.getElementById(id);}
+function mk(tag,attrs,txt){var n=document.createElementNS(SVGNS,tag);for(var k in attrs)n.setAttribute(k,attrs[k]);if(txt!=null)n.textContent=txt;return n;}
+
+/* ---------- filter ---------- */
+var fb=el("filterBtn");
+fb.addEventListener("click",function(){
+  var on=document.body.classList.toggle("only-doc");
+  fb.setAttribute("aria-pressed",on?"true":"false");
+});
+
+/* ---------- 01 loop ---------- */
+(function(){
+  var btn=el("loopBtn"),dot=el("dot");
+  var paths=["p1","p2","p3"].map(el);
+  var running=false;
+  btn.addEventListener("click",function(){
+    if(running||reduce){ if(reduce){dot.setAttribute("opacity","1");} return; }
+    running=true;var seg=0,t0=null;
+    dot.setAttribute("opacity","1");
+    function step(ts){
+      if(!t0)t0=ts;
+      var d=(ts-t0)/1100;
+      if(d>1){seg++;t0=ts;d=0;}
+      if(seg>=paths.length){dot.setAttribute("opacity","0");running=false;return;}
+      var p=paths[seg],L=p.getTotalLength(),pt=p.getPointAtLength(L*d);
+      dot.setAttribute("cx",pt.x);dot.setAttribute("cy",pt.y);
+      dot.setAttribute("fill",seg===2?"#1F6B57":(seg===0?"#4A6E93":"#A03325"));
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+})();
+
+/* ---------- 02 bridge ---------- */
+(function(){
+  var on=el("bridgeOn"),off=el("bridgeOff"),out=el("bridgeOut");
+  var grp=el("bridgeGrp"),bl=el("bl"),br=el("br"),gap=el("gapT"),rect=el("brRect"),t1=el("brT1");
+  function set(has){
+    on.classList.toggle("on",has);off.classList.toggle("on",!has);
+    grp.setAttribute("opacity",has?"1":"0.18");
+    [bl,br].forEach(function(p){
+      p.setAttribute("stroke",has?"#1F6B57":"#A03325");
+      p.setAttribute("stroke-dasharray",has?"":"5 5");
+    });
+    rect.setAttribute("stroke",has?"#1F6B57":"#A03325");
+    t1.setAttribute("fill",has?"#1F6B57":"#A03325");
+    gap.setAttribute("opacity",has?"0":"1");
+    out.innerHTML = has
+      ? '<span class="ok">$ php artisan test → Tests: 42 passed</span>'
+      : '<span class="er">Bash tool: khong khoi dong duoc shell</span><br><span style="color:var(--ink3)">Claude se thu lai bang cach khac… roi lai thu… ban dot token cho mot van de moi truong.</span>';
+  }
+  on.addEventListener("click",function(){set(true);});
+  off.addEventListener("click",function(){set(false);});
+})();
+
+/* ---------- 03 tree ---------- */
+(function(){
+  var DATA=[
+    {d:0,n:"C:\\ProgramData\\ClaudeCode\\",l:0,dir:1,k:"m0"},
+    {d:1,n:"managed-settings.json",l:0,k:"m1"},
+    {d:0,n:"C:\\Users\\<bạn>\\",l:1,dir:1,k:"u0"},
+    {d:1,n:".claude.json",l:1,k:"u1"},
+    {d:1,n:".claude\\",l:1,dir:1,k:"u2"},
+    {d:2,n:"CLAUDE.md",l:1,k:"u3"},
+    {d:2,n:"settings.json",l:1,k:"u4"},
+    {d:2,n:"commands\\",l:1,dir:1,k:"u5"},
+    {d:2,n:"agents\\",l:1,dir:1,k:"u6"},
+    {d:2,n:"skills\\",l:1,dir:1,k:"u7"},
+    {d:2,n:"projects\\",l:1,dir:1,k:"u8"},
+    {d:2,n:"plugins\\  .credentials.json",l:1,k:"u9"},
+    {d:2,n:"todos\\  shell-snapshots\\  statsig\\",l:1,k:"u10"},
+    {d:0,n:"D:\\work\\ec-site-tanaka\\",l:2,dir:1,k:"p0"},
+    {d:1,n:"CLAUDE.md",l:2,k:"p1"},
+    {d:1,n:".mcp.json",l:2,k:"p2"},
+    {d:1,n:".claude\\",l:2,dir:1,k:"p3"},
+    {d:2,n:"settings.json",l:2,k:"p4"},
+    {d:2,n:"settings.local.json",l:2,k:"p5"},
+    {d:2,n:"commands\\review-jp.md",l:2,k:"p6"},
+    {d:2,n:"agents\\  skills\\  hooks\\",l:2,k:"p7"}
+  ];
+  var INFO={
+    m0:["Tầng máy · IT","Thư mục chính sách cấp máy. Trên macOS là /Library/Application Support/ClaudeCode/, Linux là /etc/claude-code/.","v","—"],
+    m1:["Tầng máy · IT","Chính sách công ty. <b>Luôn thắng</b>, người dùng không override được. Chỗ để khoá telemetry, cấm bypassPermissions, chặn lệnh nguy hiểm cho toàn bộ máy.","v","không, IT triển khai"],
+    u0:["Tầng user · bạn","Home directory. Tương đương ~/ trên Linux.","d","—"],
+    u1:["Tầng user · bạn","State ứng dụng: accounts, danh sách project đã mở, MCP scope user. <b>Phình rất nhanh</b>. Đây KHÔNG phải file config bạn nên sửa tay.","o","không"],
+    u2:["Tầng user · bạn","Cấu hình cá nhân áp cho mọi repo.","d","không"],
+    u3:["Tầng user · bạn","Memory cá nhân. Cộng dồn với CLAUDE.md của repo chứ không đè. Chỉ nên chứa thói quen cá nhân, không chứa sự thật về codebase nào.","d","không"],
+    u4:["Tầng user · bạn","Permission và env mặc định của bạn. Ưu tiên <b>thấp nhất</b> trong 5 tầng ở mục 4.","d","không"],
+    u5:["Tầng user · bạn","Slash command dùng được ở mọi repo. Tốt cho lệnh cá nhân kiểu /explain-vn.","d","không"],
+    u6:["Tầng user · bạn","Subagent cá nhân, context window riêng.","d","không"],
+    u7:["Tầng user · bạn","Skill cá nhân. Chỉ name + description nằm sẵn trong context; thân file nạp khi được chọn.","d","không"],
+    u8:["Tầng user · bạn","Transcript từng phiên dưới dạng .jsonl, tách theo đường dẫn repo. Đây là thứ đứng sau <code>claude --resume</code>.","d","không"],
+    u9:["Tầng user · bạn","Plugin đã cài và token đăng nhập. <b>.credentials.json là secret</b> — không bao giờ copy đi đâu.","o","không"],
+    u10:["Tầng user · bạn","Chi tiết nội bộ: todo Claude tự quản, snapshot shell, feature flag. Đừng viết script phụ thuộc vào chúng.","o","không"],
+    p0:["Tầng project · team","Repo Laravel của bạn. Mặc định Claude chỉ làm việc trong cây thư mục này.","d","—"],
+    p1:["Tầng project · team","Sự thật về codebase: lệnh build/test, kiến trúc, gotcha. Đọc mỗi lượt nên phải ngắn.","d","<b>CÓ</b>"],
+    p2:["Tầng project · team","MCP server dùng chung. Token phải để dạng ${VAR}, không hardcode. Lưu ý file này đi theo repo tới tay khách.","d","<b>CÓ</b>"],
+    p3:["Tầng project · team","Cấu hình Claude Code riêng cho repo này.","d","một phần"],
+    p4:["Tầng project · team","Permission và hooks của cả team. Đây là chỗ enforce quy trình — mục 7 và 8.","d","<b>CÓ</b>"],
+    p5:["Tầng project · bạn","Override riêng máy bạn, được gitignore. <b>Đây thường là thủ phạm</b> khi máy bạn chạy khác máy đồng nghiệp.","d","KHÔNG"],
+    p6:["Tầng project · team","Slash command của dự án. Gõ /review-jp là nội dung file được chèn vào như thể bạn vừa gõ nó.","d","<b>CÓ</b>"],
+    p7:["Tầng project · team","Subagent, skill và script hook của dự án. Lưu ý hook là code sẽ chạy trên máy bất kỳ ai clone repo.","d","<b>CÓ</b>"]
+  };
+  var LC=["#2B3A55","#4A6E93","#7FA0C2"];
+  var LN=["máy","user","project"];
+  var tree=el("tree"),det=el("tdetail"),collapsed={};
+  function visible(i){
+    for(var j=i-1;j>=0;j--){
+      if(DATA[j].d<DATA[i].d){ if(collapsed[j])return false; i=j; }
+    }
+    return true;
+  }
+  function render(){
+    tree.innerHTML="";
+    DATA.forEach(function(node,i){
+      if(!visible(i))return;
+      var b=document.createElement("button");
+      b.className="tnode";b.style.setProperty("--nc",LC[node.l]);
+      b.dataset.k=node.k;b.dataset.i=i;
+      var pad="";for(var z=0;z<node.d;z++)pad+="&nbsp;&nbsp;&nbsp;";
+      var ar=node.dir?(collapsed[i]?"▸":"▾"):"&nbsp;";
+      b.innerHTML='<span class="tw">'+pad+'</span><span class="ar">'+ar+'</span><span class="nm">'+node.n.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</span>';
+      b.addEventListener("click",function(){
+        if(node.dir){collapsed[i]=!collapsed[i];render();}
+        show(node.k,node.l,node.n);
+        var cur=tree.querySelector('.tnode[data-k="'+node.k+'"]');
+        if(cur)cur.classList.add("sel");
+      });
+      tree.appendChild(b);
+    });
+  }
+  function show(k,l,name){
+    var d=INFO[k];if(!d)return;
+    var bn={d:"docs chính thức",o:"quan sát thực tế",v:"tôi không chắc"}[d[2]];
+    var title=(name||k).replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    det.innerHTML='<h5 style="color:'+LC[l]+'">'+title+'</h5>'
+      +'<div class="own">'+d[0]+'</div>'
+      +'<span class="badge '+d[2]+'">'+bn+'</span>'
+      +'<p style="margin-top:12px">'+d[1]+'</p>'
+      +'<div class="kv"><span>vào git?</span><span>'+d[3]+'</span></div>';
+    Array.prototype.forEach.call(tree.querySelectorAll(".tnode"),function(n){n.classList.remove("sel");});
+  }
+  el("treeAll").addEventListener("click",function(){collapsed={};render();});
+  el("treeNone").addEventListener("click",function(){
+    DATA.forEach(function(n,i){if(n.dir)collapsed[i]=true;});render();
+  });
+  render();
+  det.innerHTML='<h5>Bấm vào một dòng bên trái</h5><div class="own">mỗi dòng là một file hoặc thư mục thật</div><p>Bạn sẽ thấy: nó thuộc tầng nào, ai sở hữu, có nên commit vào git không, và mức độ tin cậy của thông tin đó.</p>';
+})();
+
+/* ---------- 04 precedence ---------- */
+(function(){
+  var ROWS=[
+    {p:"C:\\ProgramData\\ClaudeCode\\managed-settings.json",o:"IT công ty · không override được",v:'"default"'},
+    {p:"tham số dòng lệnh · claude --permission-mode …",o:"bạn, cho đúng một lần chạy",v:'"plan"'},
+    {p:"<repo>\\.claude\\settings.local.json",o:"bạn, riêng repo này, không share",v:'"acceptEdits"'},
+    {p:"<repo>\\.claude\\settings.json",o:"cả team, qua git",v:'"default"'},
+    {p:"C:\\Users\\<bạn>\\.claude\\settings.json",o:"bạn, mặc định toàn máy",v:'"acceptEdits"'}
+  ];
+  var state=[false,false,true,true,true];
+  var box=el("prec"),res=el("pres");
+  function esc(s){return s.replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+  function render(){
+    box.innerHTML="";
+    var winner=state.indexOf(true);
+    ROWS.forEach(function(r,i){
+      var d=document.createElement("div");
+      d.className="prow"+(state[i]?" set":"")+(i===winner?" win":"")+((winner>-1&&i>winner&&state[i])?" lose":"");
+      d.innerHTML='<span class="rk">'+(i+1)+'</span>'
+        +'<span><span class="pp">'+esc(r.p)+'</span><span class="ow">'+esc(r.o)+'</span></span>'
+        +'<button class="tg" data-i="'+i+'">'+(state[i]?"có định nghĩa":"không có")+'</button>';
+      box.appendChild(d);
+    });
+    Array.prototype.forEach.call(box.querySelectorAll(".tg"),function(b){
+      b.addEventListener("click",function(){var i=+b.dataset.i;state[i]=!state[i];render();});
+    });
+    if(winner<0){
+      res.innerHTML='Không file nào định nghĩa khoá này → Claude dùng <b>giá trị mặc định</b> <span class="pv">"default"</span>.';
+    }else{
+      var others=state.filter(Boolean).length-1;
+      res.innerHTML='Giá trị đang áp dụng: <span class="pv">'+ROWS[winner].v+'</span> — đến từ <b>'+esc(ROWS[winner].p)+'</b>'
+        +(others>0?'. '+others+' file bên dưới cũng định nghĩa khoá này nhưng <b>bị vứt hoàn toàn</b>.':'. Không có file nào bên dưới tranh chấp.');
+    }
+  }
+  el("scA").addEventListener("click",function(){state=[false,false,true,true,true];render();});
+  el("scB").addEventListener("click",function(){state=[false,false,false,true,true];render();});
+  el("scC").addEventListener("click",function(){state=[true,false,true,true,true];render();});
+  render();
+})();
+
+/* ---------- 05 merge anim ---------- */
+(function(){
+  var btn=el("mergeBtn");
+  var ovs=Array.prototype.slice.call(document.querySelectorAll("#ovG .ov"));
+  var acs=Array.prototype.slice.call(document.querySelectorAll("#acG .ac"));
+  var ovN=el("ovNote"),acN=el("acNote");
+  function reset(){
+    ovs.forEach(function(g){g.setAttribute("opacity","1");});
+    acs.forEach(function(g){g.setAttribute("opacity","1");});
+    ovN.setAttribute("opacity","0");acN.setAttribute("opacity","0");
+  }
+  function run(){
+    reset();
+    if(reduce){ovs.forEach(function(g,i){if(i>0)g.setAttribute("opacity",".15");});ovN.setAttribute("opacity","1");acN.setAttribute("opacity","1");return;}
+    ovs.forEach(function(g,i){g.setAttribute("opacity","0");});
+    acs.forEach(function(g){g.setAttribute("opacity","0");});
+    var t=0;
+    ovs.forEach(function(g,i){setTimeout(function(){g.setAttribute("opacity","1");},t+=160);});
+    setTimeout(function(){
+      ovs.forEach(function(g,i){if(i>0)g.setAttribute("opacity",".15");});
+      ovN.setAttribute("opacity","1");
+    },t+400);
+    var t2=0;
+    acs.forEach(function(g,i){setTimeout(function(){g.setAttribute("opacity","1");},t2+=260);});
+    setTimeout(function(){acN.setAttribute("opacity","1");},t2+300);
+  }
+  btn.addEventListener("click",run);
+  run();
+})();
+
+/* ---------- 06 quadrant ---------- */
+(function(){
+  var Q={
+    cmd:["Slash command","bạn gõ → chắc chắn chạy","Chỉ là một template prompt viết sẵn. Không có gì thông minh: nội dung file được chèn vào như thể bạn vừa gõ nó. Dùng cho việc lặp lại mà bạn muốn kết quả đoán trước được.",".claude\\commands\\review-jp.md → /review-jp"],
+    skill:["Skill","Claude tự chọn → có thể không chạy","Ban đầu chỉ name + description nằm trong context. Khi Claude thấy khớp mới đọc toàn bộ thân file và script kèm theo. Đây là progressive disclosure: index rẻ trỏ tới nội dung đắt.",".claude\\skills\\srs-writer\\SKILL.md"],
+    agent:["Subagent","Claude giao việc → context riêng","Một agent con có context window tách biệt, có thể giới hạn tool. Dùng khi một bước cần đọc rất nhiều file mà bạn không muốn rác đó tràn vào hội thoại chính.",".claude\\agents\\code-reviewer.md"],
+    hook:["Hook","hệ thống tự bật → không qua model","Code thật chạy tại một thời điểm cố định trong vòng đời phiên. Không phải prompt, không thể bị Claude thuyết phục bỏ qua. Đây là chỗ duy nhất bạn có đảm bảo tuyệt đối.","settings.json → \"hooks\""]
+  };
+  var info=el("quadInfo");
+  function show(k){
+    var d=Q[k];
+    info.innerHTML='<h5>'+d[0]+'</h5><div class="t">'+d[1]+'</div><p>'+d[2]+'</p><span class="f">'+d[3].replace(/</g,"&lt;")+'</span>';
+    Array.prototype.forEach.call(document.querySelectorAll(".qdot"),function(n){n.classList.toggle("on",n.dataset.q===k);});
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".qdot"),function(n){
+    n.addEventListener("click",function(){show(n.dataset.q);});
+    n.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();show(n.dataset.q);}});
+  });
+  show("cmd");
+})();
+
+/* ---------- 07 hook timeline ---------- */
+(function(){
+  var EV=[
+    ["SessionStart",0,"Mở phiên","Nạp branch hiện tại, trạng thái CI, hay ticket đang làm vào context ngay từ đầu.",0],
+    ["UserPromptSubmit",1,"Bạn vừa gửi tin nhắn","Chèn thêm context, hoặc chặn prompt vi phạm chính sách trước khi nó đi lên API.",1],
+    ["PreToolUse",2,"Trước khi một tool chạy","<b>Chặn được.</b> Gate merge, cấm sửa file nhạy cảm, bắt buộc chạy test trước khi push.",1],
+    ["PostToolUse",3,"Sau khi tool chạy xong","Chạy Pint, PHPStan, chạy test liên quan tới file vừa sửa.",0],
+    ["SubagentStop",4,"Một subagent xong việc","Thu kết quả từng bước pipeline, kiểm tra artifact đã sinh ra chưa.",0],
+    ["Notification",5,"Claude cần bạn chú ý","Bắn thông báo ra Slack hoặc toast Windows khi nó chờ bạn duyệt.",0],
+    ["Stop",6,"Claude kết thúc lượt","Kiểm tra deliverable, tự động commit, hoặc ghi log.",0],
+    ["PreCompact",7,"Trước khi nén context","Dump trạng thái quan trọng ra file trước khi chi tiết bị mất.",0],
+    ["SessionEnd",8,"Đóng phiên","Dọn dẹp, ghi log, đẩy metric.",0]
+  ];
+  var g=el("tlG"),info=el("tlInfo");
+  var x0=60,x1=840,step=(x1-x0)/(EV.length-1);
+  EV.forEach(function(e,i){
+    var x=x0+step*i;
+    var wrap=mk("g",{"class":"tlm",tabindex:"0",role:"button","aria-label":e[0]});
+    wrap.appendChild(mk("line",{x1:x,y1:96,x2:x,y2:e[4]?72:120,stroke:"#B4B1A6","stroke-width":1}));
+    wrap.appendChild(mk("circle",{cx:x,cy:96,r:7,fill:e[4]?"#A03325":"#7FA0C2",stroke:"#F1F0EB","stroke-width":2}));
+    var t=mk("text",{x:x,y:e[4]?62:138,"text-anchor":"middle","font-family":"'JetBrains Mono',monospace","font-size":"9.5",fill:e[4]?"#A03325":"#5C605D"},e[0]);
+    wrap.appendChild(t);
+    wrap.addEventListener("click",function(){show(i);});
+    wrap.addEventListener("keydown",function(ev){if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();show(i);}});
+    g.appendChild(wrap);
+  });
+  function show(i){
+    var e=EV[i];
+    info.innerHTML='<h5>'+e[0]+'</h5><div class="t" style="font-family:var(--grot);font-size:12px;color:var(--ink3);margin-bottom:6px">'
+      +e[2]+(e[4]?' · <span style="color:var(--brick)">chặn được</span>':' · chỉ quan sát')+'</div><p>'+e[3]+'</p>';
+    Array.prototype.forEach.call(g.querySelectorAll(".tlm"),function(n,j){n.classList.toggle("on",j===i);});
+  }
+  show(2);
+})();
+
+/* ---------- 08 permission sim ---------- */
+(function(){
+  var CMDS=[
+    ["php artisan test --filter=Order","allow",'Bash(php artisan test:*)',"Khớp rule allow. Chạy thẳng, không hỏi."],
+    ["./vendor/bin/pint app/","allow",'Bash(./vendor/bin/pint:*)',"Khớp allow. An toàn vì pint chỉ format code."],
+    ["php artisan migrate:fresh","deny",'Bash(php artisan migrate:fresh:*)',"Khớp deny — <b>deny xét trước allow</b>. Claude không chạy được kể cả khi bạn đang ở acceptEdits."],
+    ["git push origin main","ask","Bash(git push:*)","Khớp ask. Claude phải hỏi bạn từng lần, dù bạn đang ở mode nào."],
+    ["git push --force origin main","deny",'Bash(git push --force:*)',"Khớp cả ask lẫn deny, nhưng <b>deny thắng</b>. Đây là lý do nên viết deny hẹp và cụ thể."],
+    ["đọc file app/Models/Order.php","allow","Read(./**)","Khớp allow. Mọi file trong repo đọc được."],
+    ["đọc file .env","deny","Read(./.env)","Khớp deny. Ngăn credentials production lọt vào context rồi gửi lên API."],
+    ["cat .env","ask","— không rule nào khớp —","<b>Đây là lỗ hổng.</b> Bạn chặn tool <code>Read</code> nhưng không chặn pattern <code>Bash</code> tương ứng. Rơi về defaultMode nên Claude chỉ cần bạn bấm đồng ý một lần."],
+    ["npm install lodash","ask","— không rule nào khớp —","Không khớp gì cả → rơi về defaultMode là \"default\" → hỏi bạn."]
+  ];
+  var box=el("pcmds"),out=el("pout");
+  CMDS.forEach(function(c,i){
+    var b=document.createElement("button");
+    b.textContent=c[0];b.dataset.i=i;
+    b.addEventListener("click",function(){show(i);});
+    box.appendChild(b);
+  });
+  function show(i){
+    var c=CMDS[i];
+    var label={allow:"CHẠY NGAY",deny:"BỊ CHẶN",ask:"HỎI BẠN"}[c[1]];
+    out.innerHTML='<div class="verdict '+c[1]+'">'+label+'</div>'
+      +'<div class="rule">rule khớp: '+c[2]+'</div><p>'+c[3]+'</p>';
+    Array.prototype.forEach.call(box.querySelectorAll("button"),function(n,j){n.classList.toggle("on",j===i);});
+  }
+  show(0);
+})();
+
+/* ---------- 10 context meter ---------- */
+(function(){
+  var base=6,hist=0,turns=0,big=false,compacts=0;
+  var bE=el("cmBase"),hE=el("cmHist"),pE=el("cmPct"),lE=el("cmLog");
+  function draw(){
+    bE.style.width=base+"%";hE.style.width=hist+"%";
+    pE.textContent=Math.round(base+hist)+"%";
+  }
+  function log(s,hot){
+    var d=document.createElement("div");
+    d.innerHTML=s;if(hot)d.className="hot";
+    lE.insertBefore(d,lE.firstChild);
+    while(lE.children.length>5)lE.removeChild(lE.lastChild);
+  }
+  function turn(){
+    turns++;
+    hist+=6+Math.random()*7;
+    if(base+hist>=92){
+      compacts++;
+      hist=hist*0.35;
+      log("lượt "+turns+" · <b>auto-compact</b> — chi tiết bị bỏ, giữ lại tóm tắt",true);
+    }else{
+      log("lượt "+turns+" · context "+Math.round(base+hist)+"%");
+    }
+    draw();
+  }
+  el("cmRun").addEventListener("click",turn);
+  el("cmRun10").addEventListener("click",function(){
+    var n=0;var iv=setInterval(function(){turn();if(++n>=10)clearInterval(iv);},reduce?0:130);
+  });
+  el("cmReset").addEventListener("click",function(){
+    hist=0;turns=0;compacts=0;lE.innerHTML="";log("phiên mới · context "+base+"%");draw();
+  });
+  el("cmBig").addEventListener("click",function(){
+    big=!big;base=big?28:6;
+    el("cmBig").classList.toggle("on",big);
+    el("cmBig").textContent=big?"CLAUDE.md 40 dòng":"CLAUDE.md 4000 dòng";
+    hist=0;turns=0;lE.innerHTML="";
+    log(big?"CLAUDE.md phình to · nền đã chiếm 28% ngay từ lượt đầu":"CLAUDE.md gọn · nền chỉ 6%",big);
+    draw();
+  });
+  draw();
+})();
+
+/* ---------- 11 quiz ---------- */
+(function(){
+  var Q=[
+    ["CLAUDE.md","c","Sự thật về codebase — onboarding cho cả người lẫn máy."],
+    [".claude\\settings.json","c","Permission và hooks của team. Đây là chỗ enforce quy trình."],
+    [".claude\\settings.local.json","i","Override riêng máy bạn. Commit vào là gây đúng cái bug ở mục 4."],
+    [".claude\\commands\\","c","Quy trình lặp lại của dự án, ai cũng nên có cùng phiên bản."],
+    [".claude\\agents\\ và skills\\","c","Năng lực dùng chung, nên đi cùng version với code."],
+    [".mcp.json","c","Commit được, nhưng token phải để dạng ${VAR}."],
+    [".env","i","Ignore trong git và deny trong permission — hai lớp khác nhau."],
+    ["~\\.claude\\.credentials.json","i","Token đăng nhập của bạn. Không bao giờ rời khỏi máy."]
+  ];
+  var box=el("quiz");
+  var ans=Q.map(function(){return null;});
+  var html="";
+  Q.forEach(function(q,i){
+    html+='<div class="qrow" data-i="'+i+'"><span class="fn">'+q[0].replace(/</g,"&lt;")+'</span>'
+      +'<span class="seg"><button data-i="'+i+'" data-v="c">commit</button><button data-i="'+i+'" data-v="i">gitignore</button></span>'
+      +'<span class="why"></span></div>';
+  });
+  html+='<div class="qfoot"><button id="qCheck" style="font-family:var(--grot);font-size:12.5px;padding:7px 14px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer">Chấm điểm</button><span class="qscore" id="qScore">chọn cho cả 8 dòng</span></div>';
+  box.innerHTML=html;
+  Array.prototype.forEach.call(box.querySelectorAll(".seg button"),function(b){
+    b.addEventListener("click",function(){
+      var i=+b.dataset.i;ans[i]=b.dataset.v;
+      var row=box.querySelector('.qrow[data-i="'+i+'"]');
+      Array.prototype.forEach.call(row.querySelectorAll(".seg button"),function(n){n.classList.toggle("on",n===b);});
+      row.classList.remove("ok","bad");
+    });
+  });
+  el("qCheck").addEventListener("click",function(){
+    var right=0,done=0;
+    Q.forEach(function(q,i){
+      var row=box.querySelector('.qrow[data-i="'+i+'"]');
+      row.classList.remove("ok","bad");
+      if(!ans[i])return;done++;
+      if(ans[i]===q[1]){row.classList.add("ok");right++;}
+      else{row.classList.add("bad");row.querySelector(".why").textContent=q[2];}
+    });
+    el("qScore").innerHTML = done<Q.length
+      ? "còn "+(Q.length-done)+" dòng chưa chọn"
+      : "<b>"+right+"/"+Q.length+"</b> đúng"+(right===Q.length?" — ranh giới bạn đã nắm chắc.":"");
+  });
+})();
+
+/* ---------- 12 pipeline ---------- */
+(function(){
+  var P=[
+    ["input-synthesizer","project-overview.md","#4A6E93"],
+    ["business-analyst","requirement-analysis.md","#4A6E93"],
+    ["srs-specialist","srs.md","#4A6E93"],
+    ["software-architect","basic-design.md","#8F6412"],
+    ["system-designer","detail-design.md · screen-spec.md","#8F6412"],
+    ["qa-engineer","testcases.md · test-checklist.md","#8F6412"],
+    ["software-developer","Laravel code","#1F6B57"],
+    ["senior-code-reviewer","code-review-report.md","#1F6B57"],
+    ["release-manager","release notes · deploy checklist","#A03325"]
+  ];
+  var g=el("pipeG"),y=56;
+  P.forEach(function(p,i){
+    g.appendChild(mk("circle",{cx:196,cy:y,r:8,fill:p[2]}));
+    g.appendChild(mk("text",{x:180,y:y+4,"text-anchor":"end","font-family":"'JetBrains Mono',monospace","font-size":"12.5",fill:"#171A19"},p[0]));
+    g.appendChild(mk("path",{d:"M210 "+y+" L 330 "+y,stroke:"#D6D3CA","stroke-width":1.5,"stroke-dasharray":"3 3"}));
+    g.appendChild(mk("rect",{x:330,y:y-14,width:330,height:28,fill:"#FFF",stroke:"#D6D3CA"}));
+    g.appendChild(mk("text",{x:344,y:y+4,"font-family":"'JetBrains Mono',monospace","font-size":"11",fill:"#5C605D"},p[1]));
+    if(i<P.length-1){
+      g.appendChild(mk("path",{d:"M660 "+y+" C 700 "+y+", 700 "+(y+62)+", 660 "+(y+62),fill:"none",stroke:"#B4B1A6","stroke-width":1.2}));
+      g.appendChild(mk("path",{d:"M660 "+(y+62)+" L 664 "+(y+62),stroke:"#B4B1A6","stroke-width":1.2}));
+    }
+    y+=62;
+  });
+})();
+
+/* ---------- 13 copy ---------- */
+(function(){
+  var b=el("copyBtn"),pre=el("psBlock");
+  b.addEventListener("click",function(){
+    var t=pre.innerText;
+    if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){b.textContent="đã copy";setTimeout(function(){b.textContent="copy";},1400);});}
+  });
+})();
+
+})();
+</script>
+</body>
+</html>
